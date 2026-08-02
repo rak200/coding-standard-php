@@ -9,6 +9,11 @@ declare(strict_types=1);
  *     return (require 'vendor/rak200/coding-standard-php/.php-cs-fixer.dist.php')
  *         ->setFinder(PhpCsFixer\Finder::create()->in([__DIR__ . '/src', __DIR__ . '/tests']));
  *
+ * No finder is set here, deliberately: Symfony's Finder validates a directory the
+ * moment it is added, so a finder pointing at this package's own (nonexistent) src/
+ * would make the file throw on require — in every consumer, which is the only way it
+ * is ever loaded. The consumer owns the finder, as the snippet above shows.
+ *
  * The preset is @PhpCsFixer — the strictest consolidated one. Every deviation below is a
  * deliberate, load-bearing override with its reason stated; the ecosystem's rule is that a
  * narrowed standard is an exception that must justify itself, never a default.
@@ -45,6 +50,9 @@ return (new PhpCsFixer\Config())
                 'constant_public', 'constant_protected', 'constant_private',
                 'property_public', 'property_protected', 'property_private',
                 'construct',
+                // The fixture hooks belong with the constructor, not scattered after
+                // the tests they set up. php-cs-fixer offers the slot for exactly this.
+                'phpunit',
                 'method_public', 'method_protected', 'method_private',
                 'magic',
                 'destruct',
@@ -72,8 +80,4 @@ return (new PhpCsFixer\Config())
         // and `return_assignment` would inline the very variable it annotates.
         'phpdoc_to_comment' => ['ignored_tags' => ['var']],
         'return_assignment' => false,
-    ])
-    ->setFinder(
-        PhpCsFixer\Finder::create()
-            ->in([__DIR__ . '/src', __DIR__ . '/tests'])
-    );
+    ]);

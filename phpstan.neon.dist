@@ -3,11 +3,19 @@
 #   includes:
 #       - vendor/rak200/coding-standard-php/phpstan.neon.dist
 #
+#   parameters:
+#       paths:
+#           - src
+#           - tests
+#
+# `paths` is deliberately NOT set here. PHPStan resolves a relative path against the
+# file that declares it, so a `paths: [src, tests]` in this file names directories
+# inside the installed package — which do not exist, and the analyser refuses to start.
+# Level and the analyser's own settings are the standard; what to look at is the
+# consumer's business.
+#
 # A local phpstan.neon may override anything here and stays untracked.
 parameters:
     level: max
-    paths:
-        - src
-        - tests
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: true

@@ -8,6 +8,7 @@
 /.github/                export-ignore
 /.githooks/              export-ignore
 /.rak200                 export-ignore
+/.gitmodules             export-ignore
 /tests/                  export-ignore
 /docs/                   export-ignore
 /.editorconfig           export-ignore
