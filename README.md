@@ -1,5 +1,9 @@
 # rak200/coding-standard-php
 
+[![PHP](https://img.shields.io/badge/php-8.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net/)
+[![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen?logo=php&logoColor=white)](phpstan.neon.dist)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 **Layer 2 of the rak200 baseline, for PHP**: the enforcing configuration and the prose that
 documents it, versioned together so a repository cannot have one without the other.
 
@@ -47,6 +51,7 @@ return (require 'vendor/rak200/coding-standard-php/.php-cs-fixer.dist.php')
 | `phpstan.neon.dist` | `level: max`, over `src/` **and** `tests/` |
 | `.php-cs-fixer.dist.php` | `@PhpCsFixer` — the strictest consolidated preset — with five stated overrides |
 | `infection.json5.dist` | `minCoveredMsi: 100`; a survivor is killed, never accommodated |
+| `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor` |
 
 **The overrides are the interesting part**, and each states its reason inline rather than
 existing by habit: the `use function` inventory, member order with magic last, natural

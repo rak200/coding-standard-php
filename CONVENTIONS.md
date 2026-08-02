@@ -18,9 +18,10 @@ Import both from a project's `CLAUDE.md`:
   on the next PHP minor.
 - **No runtime Composer dependencies** — only the extensions a project genuinely needs, declared
   under `require` (`ext-mbstring` wherever `mb_*` is used, `ext-bcmath` for big-number work).
-- **One dev dependency**: this package. It brings the analyser, the formatter, the test runner
-  and the mutation engine with it, so a repository's `require-dev` does not drift from its
-  siblings'.
+- **One dev dependency**: this package. It brings the analyser, the formatter, the test runner,
+  the mutation engine and the coverage-floor binary with it, so a repository's `require-dev` does
+  not drift from its siblings'. The one tool it cannot bring is the security scanner — see
+  `scan` below.
 
 ## The verbs, bound
 
@@ -34,9 +35,22 @@ eight in `composer.json`; CI asserts their presence.
 | `fix` | `php-cs-fixer fix` |
 | `analyse` | `phpstan analyse --memory-limit=512M` |
 | `test` | `phpunit` |
-| `coverage` | the floor check, reading `.coverage-floor` against the clover report |
+| `coverage` | `coverage-floor` — this package's binary, clover report against `.coverage-floor` |
 | `scan` | `semgrep scan --config=p/php --severity=ERROR --sarif -o semgrep.sarif` |
 | `mutation` | `infection --threads=max` |
+
+Two of them need a word beyond the binding.
+
+**`scan` is the one verb no Composer dependency satisfies.** semgrep is a Python tool, and the
+ecosystem standardises on it across languages rather than hunting a native equivalent per
+language — so a development environment installs it outside Composer (`pipx install semgrep`)
+and CI installs it explicitly. Discovering this cost nothing except a step that would have
+exited 127 while looking careful.
+
+**`mutation` takes its scope from the caller.** The verb is the full run; CI narrows it to the
+changed lines on a pull request (`--git-diff-lines --git-diff-base=origin/<base>`) because a full
+run is tens of minutes on a real library. The floor is identical either way — Layer 1 owns the
+word, the pipeline owns when and over what it runs.
 
 ## Static analysis
 
