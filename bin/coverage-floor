@@ -1,0 +1,72 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Layer 2 (PHP) — the coverage floor, bound to the `coverage` verb.
+ *
+ *     bin/coverage-floor [clover-report] [floor-file]
+ *
+ * Enforced inside the CI job, from files in the repository, so the required check
+ * never waits on a third party — Codecov is reporting only. The floor itself is
+ * per-repo state in `.coverage-floor`, never a seed: it is hard-floored at 95 and
+ * ratchets up as coverage improves.
+ *
+ * @author rak200 <rak.ricardo@windowslive.com>
+ */
+
+const HARD_FLOOR = 95.0;
+
+$report = $argv[1] ?? 'coverage.xml';
+$floorFile = $argv[2] ?? '.coverage-floor';
+
+/** Writes a message and stops with a failing status. */
+function fail(string $message): never
+{
+    fwrite(STDERR, "::error::coverage floor: {$message}\n");
+    exit(1);
+}
+
+if (!is_file($floorFile)) {
+    fail("{$floorFile} is missing — the floor is per-repo state and every repository owes one");
+}
+
+if (!is_file($report)) {
+    fail("{$report} is missing — run the suite with --coverage-clover={$report}");
+}
+
+$floor = (float) trim((string) file_get_contents($floorFile));
+
+if ($floor < HARD_FLOOR) {
+    fail("{$floorFile} says {$floor}, below the hard floor of " . HARD_FLOOR);
+}
+
+$xml = @simplexml_load_file($report);
+
+if ($xml === false || !isset($xml->project->metrics)) {
+    fail("{$report} is not a clover report with project metrics");
+}
+
+$metrics = $xml->project->metrics;
+$total = (int) $metrics['statements'];
+$covered = (int) $metrics['coveredstatements'];
+
+if ($total === 0) {
+    fail("{$report} reports zero statements — the suite covered nothing");
+}
+
+$actual = round($covered / $total * 100, 2);
+
+printf("coverage %.2f%% (%d/%d statements), floor %.2f%%\n", $actual, $covered, $total, $floor);
+
+if ($actual < $floor) {
+    fail(sprintf('%.2f%% is below the floor of %.2f%%', $actual, $floor));
+}
+
+// The ratchet is reported, not enforced: failing a pull request for *improving*
+// coverage is a different policy, and it would have to be decided rather than
+// inherited from the word "monotonic".
+if ($actual > $floor) {
+    printf("::notice::coverage rose to %.2f%% — raise %s to match\n", $actual, $floorFile);
+}

@@ -3,7 +3,11 @@
 .claude/
 /composer.lock
 /phpstan.neon
+/infection.json5
 .phpunit.result.cache
 .phpunit.cache/
 .phpstan.cache/
 .php-cs-fixer.cache
+infection.log
+semgrep.sarif
+coverage.xml
