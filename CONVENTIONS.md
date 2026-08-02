@@ -30,7 +30,7 @@ eight in `composer.json`; CI asserts their presence.
 
 | Verb | Binding |
 | --- | --- |
-| `validate` | `composer validate --no-check-publish --strict` |
+| `validate` | `composer validate --no-check-publish --strict` — **never declared as a script** |
 | `lint` | `php-cs-fixer fix --dry-run --diff` |
 | `fix` | `php-cs-fixer fix` |
 | `analyse` | `phpstan analyse --memory-limit=512M` |
@@ -39,7 +39,13 @@ eight in `composer.json`; CI asserts their presence.
 | `scan` | `semgrep scan --config=p/php --severity=ERROR --sarif -o semgrep.sarif` |
 | `mutation` | `infection --threads=max` |
 
-Two of them need a word beyond the binding.
+Three of them need a word beyond the binding.
+
+**`validate` is the native Composer command, and the manifest must not declare it.** Composer
+skips any script shadowing a native command — under `composer validate` *and*
+`composer run-script validate` — printing *"A script named validate would override a Composer
+command and has been skipped"* before falling through. A declared `validate` would be a script
+that can never run, which reads as covered; CI asserts its absence.
 
 **`scan` is the one verb no Composer dependency satisfies.** semgrep is a Python tool, and the
 ecosystem standardises on it across languages rather than hunting a native equivalent per

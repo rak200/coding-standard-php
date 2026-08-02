@@ -26,13 +26,25 @@ cannot drift from its siblings'.
 # phpstan.neon.dist
 includes:
     - vendor/rak200/coding-standard-php/phpstan.neon.dist
+
+parameters:
+    paths:
+        - src
+        - tests
 ```
 
 ```php
 // .php-cs-fixer.dist.php
-return (require 'vendor/rak200/coding-standard-php/.php-cs-fixer.dist.php')
+return (require __DIR__ . '/vendor/rak200/coding-standard-php/.php-cs-fixer.dist.php')
     ->setFinder(PhpCsFixer\Finder::create()->in([__DIR__ . '/src', __DIR__ . '/tests']));
 ```
+
+**The consumer owns *what to look at*, both times, and not by preference.** PHPStan resolves a
+relative `paths` against the file that declares it, and Symfony's Finder validates a directory the
+moment it is added — so a `paths` or a finder baked into this package names directories inside
+the installed package, which do not exist. The first makes the analyser refuse to start; the
+second throws on `require`. Both were shipped that way, and both were found the first time a
+repository tried the snippets above.
 
 ```json5
 // infection.json5.dist — copy and adjust `source`, keep the floor
