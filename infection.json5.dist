@@ -1,0 +1,22 @@
+{
+  // Layer 2 (PHP) — the mutation floor. The threshold is never lowered to accommodate
+  // a survivor: a survivor is killed by strengthening the test, or proven equivalent
+  // and annotated at the narrowest node that isolates it.
+  //
+  // minCoveredMsi is the mandated floor. minMsi is deliberately absent: mandating it
+  // would silently mandate literal-100% line coverage as well, which is a different
+  // decision and belongs to .coverage-floor.
+  "$schema": "vendor/infection/infection/resources/schema.json",
+  "source": {
+    "directories": ["src"]
+  },
+  "mutators": {
+    "@default": true
+  },
+  "minCoveredMsi": 100,
+  "logs": {
+    "stryker": {
+      "badge": "/^master$/"
+    }
+  }
+}

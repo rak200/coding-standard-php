@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+# Preventive half of secret scanning. The push is the moment content leaves the
+# machine — the last point at which prevention is still prevention.
+#
+# Enable per clone (local git config, which no platform can enforce for you):
+#   git config core.hooksPath .githooks
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-push: gitleaks is not installed — refusing to push." >&2
+  echo "  Install it (https://github.com/gitleaks/gitleaks) or, if you have" >&2
+  echo "  genuinely decided to push without it, use --no-verify deliberately." >&2
+  exit 1
+fi
+
+echo "pre-push: scanning for secrets…"
+if ! gitleaks protect --staged --redact --verbose; then
+  echo "pre-push: gitleaks found a secret. Nothing was pushed." >&2
+  exit 1
+fi

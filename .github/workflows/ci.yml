@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # A configuration package ships no source and no suite, so it calls the
+  # language-agnostic pipeline: there is nothing to analyse, test or mutate. Its
+  # Composer-flavoured seeds still apply — it has dependencies like any PHP package.
+  ci:
+    uses: rak200/.github/.github/workflows/base.yml@1.1.0
+    with:
+      variant: php-config

@@ -1,0 +1,13 @@
+# Layer 2 (PHP) — static analysis. Consumed by a repository as:
+#
+#   includes:
+#       - vendor/rak200/coding-standard-php/phpstan.neon.dist
+#
+# A local phpstan.neon may override anything here and stays untracked.
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true

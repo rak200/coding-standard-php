@@ -1,0 +1,9 @@
+/vendor/
+/node_modules/
+.claude/
+/composer.lock
+/phpstan.neon
+.phpunit.result.cache
+.phpunit.cache/
+.phpstan.cache/
+.php-cs-fixer.cache
