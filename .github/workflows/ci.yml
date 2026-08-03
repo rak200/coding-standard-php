@@ -18,6 +18,6 @@ jobs:
   # language-agnostic pipeline: there is nothing to analyse, test or mutate. Its
   # Composer-flavoured seeds still apply — it has dependencies like any PHP package.
   ci:
-    uses: rak200/.github/.github/workflows/base.yml@1.3.0
+    uses: rak200/.github/.github/workflows/base.yml@1.7.0
     with:
       variant: php-config
