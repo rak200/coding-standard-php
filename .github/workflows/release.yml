@@ -1,0 +1,20 @@
+name: release
+
+# Cuts releases from master: release-please reads the commit history, opens and
+# maintains a Release PR, and merging that PR cuts the bare tag and the GitHub
+# Release. The version is derived here and typed nowhere.
+
+on:
+  push:
+    branches: [master]
+
+# The caller caps what the called workflow may request. release-please cuts the tag
+# and the Release, and opens the Release PR, so it needs both — capped at read here,
+# it would `startup_failure` and never publish anything to notice.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    uses: rak200/.github/.github/workflows/release.yml@1.10.0
