@@ -3,7 +3,12 @@
     "description": "Layer 2 of the rak200 baseline for PHP: the enforcing configuration and the prose that documents it",
     "type": "library",
     "license": "MIT",
-    "keywords": ["standards", "static analysis", "code style", "mutation testing"],
+    "keywords": [
+        "standards",
+        "static analysis",
+        "code style",
+        "mutation testing"
+    ],
     "authors": [
         {
             "name": "rak200",
@@ -17,7 +22,9 @@
         "phpstan/phpstan": "^2.2",
         "phpunit/phpunit": "^13.2"
     },
-    "bin": ["bin/coverage-floor"],
+    "bin": [
+        "bin/coverage-floor"
+    ],
     "autoload": {
         "psr-4": {
             "Rak200\\CodingStandardPhp\\": "src/"
