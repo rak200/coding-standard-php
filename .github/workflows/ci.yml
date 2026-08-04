@@ -5,19 +5,44 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  # The full mutation run. A pull request mutates only its changed lines, so the
+  # cross-file drift a diff structurally cannot see is caught here — run it before a
+  # significant release. Not a `paths:` filter and not on the required-check path:
+  # a workflow that publishes a required check carries no filter (non-negotiable 3).
+  workflow_dispatch:
 
+# A caller CAPS the permissions of the workflow it calls: a job in the reusable
+# workflow that asks for more than this gets `startup_failure` and publishes NO
+# check at all — the required check simply never appears and the PR waits forever.
 permissions:
   contents: read
+  security-events: write   # SARIF upload from the scanner
+  actions: read            # codeql-action reads the run (private repos)
+  id-token: write          # Codecov OIDC
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # A configuration package ships no source and no suite, so it calls the
-  # language-agnostic pipeline: there is nothing to analyse, test or mutate. Its
-  # Composer-flavoured seeds still apply — it has dependencies like any PHP package.
+  # The language pipeline, NOT the language-agnostic half this used to call. A
+  # configuration package is a Composer package that ships executable code, and a
+  # package whose CI never installs it has no CI: for as long as this called
+  # `base.yml`, nothing here ran a verb, measured a line or mutated a statement — and
+  # the run was green throughout, because everything it did run passed.
+  #
+  # The comment that stood here said a config package "ships no source and no suite",
+  # and that was true when it was written. Nothing re-examined it when one acquired
+  # both. Its Composer-flavoured seeds always applied; what was missing was every
+  # step downstream of `composer install`.
+  #
+  # `variant` names this repository's own seed set. Without it the pipeline would
+  # grade a config package against the `php` seeds, which hide the very files it
+  # exists to ship.
+  #
+  # The job MUST be named `ci` and the reusable workflow's last job `gate`: together
+  # they publish the required check `ci / gate`. Pin an exact tag, never a moving alias.
   ci:
-    uses: rak200/.github/.github/workflows/base.yml@1.7.0
+    uses: rak200/.github/.github/workflows/php.yml@1.10.0
     with:
       variant: php-config

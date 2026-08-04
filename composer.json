@@ -18,6 +18,29 @@
         "phpunit/phpunit": "^13.2"
     },
     "bin": ["bin/coverage-floor"],
+    "autoload": {
+        "psr-4": {
+            "Rak200\\CodingStandardPhp\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Rak200\\CodingStandardPhp\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "lint": "php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php src tests bin/coverage-floor",
+        "fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php src tests bin/coverage-floor",
+        "analyse": "phpstan analyse --memory-limit=512M src tests bin/coverage-floor",
+        "test": "phpunit",
+        "coverage": "@php bin/coverage-floor",
+        "scan": "semgrep scan --config=p/php --severity=ERROR --sarif -o semgrep.sarif",
+        "mutation": [
+            "Composer\\Config::disableProcessTimeout",
+            "@putenv XDEBUG_MODE=coverage",
+            "infection --threads=max"
+        ]
+    },
     "config": {
         "allow-plugins": {
             "infection/extension-installer": true

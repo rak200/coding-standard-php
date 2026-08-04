@@ -20,6 +20,21 @@
 /ROADMAP.md              export-ignore
 /ARCHITECTURE.md         export-ignore
 
+# A configuration package still has development of its own, and this is where the
+# two lists part company. `phpunit.xml` names *this* package's tests and its own
+# src/; shipping it hands a consumer a config that can only fail. Release plumbing
+# is the same kind of thing — it describes how this repository cuts a tag, and
+# means nothing inside a vendor/ directory.
+#
+# These lines arrived when the package acquired a suite. Before that it had no
+# development to separate, which is why a config variant looked for a while like a
+# variant that exports everything.
+/phpunit.xml                    export-ignore
+/release-please-config.json     export-ignore
+/.release-please-manifest.json  export-ignore
+
 # Deliberately NOT export-ignored here, and this is the whole reason the file is
 # per-variant: in a configuration package the .dist files and CONVENTIONS.md are
-# the product. The `php` variant hides exactly what this one must ship.
+# the product. The `php` variant hides exactly what this one must ship. `src/` and
+# `bin/` join them: a config package that ships an executable ships the code behind
+# it, and Composer's bin proxy autoloads out of the same tarball.
