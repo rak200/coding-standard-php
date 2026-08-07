@@ -1,5 +1,6 @@
 # rak200/coding-standard-php
 
+[![Latest tag](https://img.shields.io/github/v/tag/rak200/coding-standard-php?sort=semver)](https://github.com/rak200/coding-standard-php/tags)
 [![PHP](https://img.shields.io/badge/php-8.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net/)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen?logo=php&logoColor=white)](phpstan.neon.dist)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
