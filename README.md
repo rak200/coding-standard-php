@@ -75,6 +75,12 @@ existing by habit: the `use function` inventory, member order with magic last, n
 `minMsi` is deliberately absent. Mandating it would silently mandate literal-100% line coverage
 as well, which is a different decision and belongs to each repository's `.coverage-floor`.
 
+**The prose and the config ship together, in the same pull request.** A rule enforced by a config
+with no prose is a surprise; **prose describing a rule no config enforces is a lie** — it reads as
+guaranteed and is not, and nobody finds out until the thing it claimed to prevent has already
+happened. This package exists to keep the two halves in one version, so changing one without the
+other is the specific failure it was built to remove.
+
 ## Versioning
 
 Bare SemVer tags. Raising the PHP floor, tightening the analyser, or adding a fixer rule that
