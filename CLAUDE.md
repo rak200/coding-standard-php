@@ -2,10 +2,13 @@
 
 Guidance for Claude Code when working in this repository.
 
+@.rak200/CONVENTIONS.md
 @CONVENTIONS.md
 
-> This repository *is* Layer 2, so the import above is local. Everywhere else it reads
-> `@vendor/rak200/coding-standard-php/CONVENTIONS.md`, beside `@.rak200/CONVENTIONS.md`.
+> The second import is **local**: this repository *is* Layer 2. Everywhere else it reads
+> `@vendor/rak200/coding-standard-php/CONVENTIONS.md`, because Composer does not install a
+> package into its own tree. If `.rak200/` is empty, the clone skipped its submodule:
+> `git submodule update --init --recursive`.
 
 ## What this repository is
 
@@ -13,19 +16,17 @@ The PHP half of the ecosystem baseline: three config files and the prose that ex
 ships **no source and no test suite** — its product *is* the configuration — which is why its CI
 calls the language-agnostic pipeline rather than the PHP one.
 
-## What that implies for editing
+## Where the rules are
 
-1. **A config change here reformats or reds other people's repositories.** Tightening the
-   analyser, adding a fixer rule, or raising the PHP floor is a **major** bump: a consumer can
-   go red without changing a line of its own.
-2. **Every override carries its reason inline.** The preset is the strictest consolidated one and
-   the ecosystem's rule is that narrowing it is an exception that must justify itself. If you add
-   an override, write why in the file, not in a commit message that nobody reads at the point of
-   confusion.
-3. **Two rules are off for a documented idiom, not for taste** — `phpdoc_to_comment` for `@var`
-   and `return_assignment`. They protect the localized `/** @var */` that keeps a deficient
-   native stub from distorting real code. Re-enabling either breaks that idiom everywhere.
-4. **The prose and the config ship together.** A rule enforced by a config with no prose is a
-   surprise; prose describing a rule no config enforces is a lie. Change both in the same PR.
-5. **`minCoveredMsi` is the floor and `minMsi` stays absent.** That asymmetry is deliberate —
-   see the comment in `infection.json5.dist` before changing it.
+In the two imports above, in [README.md](README.md), and in each config file beside the line it
+explains. This file restates none of them.
+
+- **What a change here costs a consumer** — [README.md](README.md) §*Versioning*: raising the PHP
+  floor, tightening the analyser or adding a reformatting fixer rule is a **major**, because a
+  consumer can go red without changing a line of its own.
+- **Why each override exists**, and why two rules are turned *off* — [README.md](README.md)
+  §*What it fixes in place*, and inline in `.php-cs-fixer.dist.php` beside each one.
+- **The prose and the config ship together** — [README.md](README.md), end of §*What it fixes in
+  place*. Changing one without the other is the failure this package exists to remove.
+- **Why `minCoveredMsi` is the floor and `minMsi` stays absent** — the comment at the top of
+  `infection.json5.dist`, and [README.md](README.md).
