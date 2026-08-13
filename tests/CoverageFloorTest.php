@@ -263,6 +263,36 @@ final class CoverageFloorTest extends TestCase
         $this->assertTrue($result['rose']);
     }
 
+    public function testEvaluateRoundsTheExcessToTwoPlacesAndNotToOne(): void
+    {
+        // 1.04 over the floor. Rounded to two places it is 1.04 and the gate fails;
+        // rounded to one it is 1.00 and the gate passes. Without this case the precision
+        // in `round($actual - $floor, 2)` is asserted by nothing, which mutation testing
+        // said out loud — the 2 could become a 1 and every other test stayed green. The
+        // same case pins the rounding *function*: `floor()` gives 1.0 here and passes.
+        file_put_contents($this->floorFile, "97.96\n");
+        file_put_contents($this->report, self::clover(100, 99));
+
+        $this->expectException(FloorException::class);
+
+        CoverageFloor::evaluate($this->report, $this->floorFile);
+    }
+
+    public function testEvaluateRoundsTheExcessToTwoPlacesAndNotToThree(): void
+    {
+        // The other side of the same assertion, and it has to be a passing case: 1.004
+        // over the floor rounds to 1.00 at two places and is inside the tolerance, while
+        // at three places it is 1.004 and would fail. `ceil()` gives 2.0 here and would
+        // fail too, so this pins the function in the direction the case above cannot.
+        file_put_contents($this->floorFile, "97.996\n");
+        file_put_contents($this->report, self::clover(100, 99));
+
+        $result = CoverageFloor::evaluate($this->report, $this->floorFile);
+
+        $this->assertSame(99.0, $result['actual']);
+        $this->assertTrue($result['rose']);
+    }
+
     public function testEvaluateFailsMoreThanOnePointAboveTheFloorNamingAllThreeNumbers(): void
     {
         file_put_contents($this->floorFile, "95\n");
