@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/rak200/coding-standard-php/compare/0.3.2...0.3.3) (2026-08-13)
+
+
+### Features
+
+* the coverage ratchet's second mode stops being a notice and starts blocking ([#16](https://github.com/rak200/coding-standard-php/issues/16)) ([9cf13bc](https://github.com/rak200/coding-standard-php/commit/9cf13bc55c80f9f3cc88c218ce4e28157ea59a27))
+
 ## [0.3.2](https://github.com/rak200/coding-standard-php/compare/0.3.1...0.3.2) (2026-08-12)
 
 
