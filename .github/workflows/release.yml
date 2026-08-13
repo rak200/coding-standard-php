@@ -17,4 +17,4 @@ permissions:
 
 jobs:
   release:
-    uses: rak200/.github/.github/workflows/release.yml@1.11.1
+    uses: rak200/.github/.github/workflows/release.yml@1.12.0
