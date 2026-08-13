@@ -38,6 +38,13 @@ final class CoverageFloor
     public const float HARD_FLOOR = 95.0;
 
     /**
+     * How far above its declared floor a repository may sit without re-declaring it.
+     * Beyond this the gate fails, forcing the pull request that won the coverage to
+     * record it — the ratchet's second mode.
+     */
+    public const float TOLERANCE = 1.0;
+
+    /**
      * Reads a floor from the text of a `.coverage-floor` file.
      *
      * @param string $text  raw file contents
@@ -131,7 +138,8 @@ final class CoverageFloor
      * @return array{actual: float, floor: float, total: int, covered: int, rose: bool}
      *
      * @throws FloorException when either file is missing, unreadable as expected, or the
-     *                        measured coverage is below the floor
+     *                        measured coverage is below the floor or more than
+     *                        {@see self::TOLERANCE} points above it
      */
     public static function evaluate(string $report, string $floorFile): array
     {
@@ -155,9 +163,27 @@ final class CoverageFloor
             throw new FloorException(sprintf('%.2f%% is below the floor of %.2f%%', $actual, $floor));
         }
 
-        // The ratchet is reported, not enforced: failing a pull request for *improving*
-        // coverage is a different policy, and it would have to be decided rather than
-        // inherited from the word "monotonic".
+        // The ratchet is enforced above the tolerance, and this comment used to say the
+        // opposite: "reported, not enforced … it would have to be decided rather than
+        // inherited from the word monotonic". It had been decided — RFC 0017, *Testing
+        // policy and the coverage floor*, states the one-point band and the reason for it
+        // — and neither side read the other, so the estate carried a rule in prose and a
+        // refusal to implement it in code, each with its own argument. That is worse than
+        // an oversight, because both look deliberate.
+        //
+        // Rounded before comparing, not compared directly. `$actual` is already rounded to
+        // two places while `$floor` is whatever the file says, so `$actual - $floor` lands
+        // a few ulps above 1.0 at exactly the boundary and would fail a repository sitting
+        // precisely one point over — the one value the rule declares acceptable.
+        if (round($actual - $floor, 2) > self::TOLERANCE) {
+            throw new FloorException(sprintf(
+                '%.2f%% is more than %.2f points above the floor of %.2f%% — raise the floor in this pull request, so the gain is locked in by a check rather than by anyone remembering',
+                $actual,
+                self::TOLERANCE,
+                $floor,
+            ));
+        }
+
         return [
             'actual' => $actual,
             'floor' => $floor,

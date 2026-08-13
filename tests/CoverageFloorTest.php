@@ -238,15 +238,44 @@ final class CoverageFloorTest extends TestCase
         }
     }
 
-    public function testEvaluatePassesAboveTheFloorAndReportsTheRise(): void
+    public function testEvaluatePassesInsideTheToleranceAndReportsTheRise(): void
+    {
+        file_put_contents($this->floorFile, "98.5\n");
+        file_put_contents($this->report, self::clover(100, 99));
+
+        $this->assertSame(
+            ['actual' => 99.0, 'floor' => 98.5, 'total' => 100, 'covered' => 99, 'rose' => true],
+            CoverageFloor::evaluate($this->report, $this->floorFile),
+        );
+    }
+
+    public function testEvaluatePassesAtExactlyTheTolerance(): void
+    {
+        // The boundary the rule declares acceptable, and the reason `evaluate` rounds the
+        // difference before comparing it: 99.0 - 98.0 is not 1.0 in binary floating point,
+        // and a direct `> TOLERANCE` fails this case while every other test passes.
+        file_put_contents($this->floorFile, "98\n");
+        file_put_contents($this->report, self::clover(100, 99));
+
+        $result = CoverageFloor::evaluate($this->report, $this->floorFile);
+
+        $this->assertSame(99.0, $result['actual']);
+        $this->assertTrue($result['rose']);
+    }
+
+    public function testEvaluateFailsMoreThanOnePointAboveTheFloorNamingAllThreeNumbers(): void
     {
         file_put_contents($this->floorFile, "95\n");
         file_put_contents($this->report, self::clover(100, 99));
 
-        $this->assertSame(
-            ['actual' => 99.0, 'floor' => 95.0, 'total' => 100, 'covered' => 99, 'rose' => true],
-            CoverageFloor::evaluate($this->report, $this->floorFile),
+        // The whole message: the two numbers alone read as a complaint about improving
+        // coverage. The instruction is the half that makes it actionable, and a mutant
+        // dropping it leaves a gate nobody knows how to satisfy.
+        $this->expectExceptionMessage(
+            '99.00% is more than 1.00 points above the floor of 95.00% — raise the floor in this pull request, so the gain is locked in by a check rather than by anyone remembering',
         );
+
+        CoverageFloor::evaluate($this->report, $this->floorFile);
     }
 
     public function testEvaluatePassesExactlyAtTheFloorAndDoesNotReportARise(): void

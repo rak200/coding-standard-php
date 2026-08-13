@@ -62,19 +62,35 @@ final class CoverageFloorBinaryTest extends TestCase
 
     public function testExitsZeroAndPrintsTheMeasurementWhenTheFloorIsMet(): void
     {
-        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->floorFile, "99\n");
 
         ['status' => $status, 'output' => $output] = $this->execute();
 
         $this->assertSame(0, $status);
-        $this->assertStringContainsString('coverage 99.00% (99/100 statements), floor 95.00%', $output);
+        $this->assertStringContainsString('coverage 99.00% (99/100 statements), floor 99.00%', $output);
     }
 
-    public function testEmitsANoticeWhenCoverageHasRisenAboveTheFloor(): void
+    public function testEmitsANoticeWhenCoverageHasRisenInsideTheTolerance(): void
+    {
+        file_put_contents($this->floorFile, "98.5\n");
+
+        ['status' => $status, 'output' => $output] = $this->execute();
+
+        $this->assertSame(0, $status);
+        $this->assertStringContainsString('::notice::coverage rose to 99.00%', $output);
+    }
+
+    public function testExitsOneWhenCoverageIsMoreThanOnePointAboveTheFloor(): void
     {
         file_put_contents($this->floorFile, "95\n");
 
-        $this->assertStringContainsString('::notice::coverage rose to 99.00%', $this->execute()['output']);
+        ['status' => $status, 'output' => $output] = $this->execute();
+
+        $this->assertSame(1, $status);
+        $this->assertStringContainsString(
+            '::error::coverage floor: 99.00% is more than 1.00 points above the floor of 95.00%',
+            $output,
+        );
     }
 
     public function testExitsOneWithAGithubErrorAnnotationWhenTheFloorIsMissed(): void
