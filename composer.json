@@ -23,7 +23,8 @@
         "phpunit/phpunit": "^13.2"
     },
     "bin": [
-        "bin/coverage-floor"
+        "bin/coverage-floor",
+        "bin/rak200-scan"
     ],
     "autoload": {
         "psr-4": {
@@ -36,12 +37,12 @@
         }
     },
     "scripts": {
-        "lint": "php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php src tests bin/coverage-floor",
-        "fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php src tests bin/coverage-floor",
-        "analyse": "phpstan analyse --memory-limit=512M src tests bin/coverage-floor",
+        "lint": "php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php src tests bin/coverage-floor bin/rak200-scan",
+        "fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php src tests bin/coverage-floor bin/rak200-scan",
+        "analyse": "phpstan analyse --memory-limit=512M src tests bin/coverage-floor bin/rak200-scan",
         "test": "phpunit",
         "coverage": "@php bin/coverage-floor",
-        "scan": "semgrep scan --config=p/php --severity=ERROR --sarif -o semgrep.sarif",
+        "scan": "@php bin/rak200-scan",
         "mutation": [
             "Composer\\Config::disableProcessTimeout",
             "@putenv XDEBUG_MODE=coverage",
