@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/rak200/coding-standard-php/compare/0.3.3...0.3.4) (2026-08-14)
+
+
+### Features
+
+* the scan verb binds to Layer 2, carrying the command the RFC decided ([#19](https://github.com/rak200/coding-standard-php/issues/19)) ([f823138](https://github.com/rak200/coding-standard-php/commit/f823138c482d31e53964b53ee5313b521fd7ac0c))
+
 ## [0.3.3](https://github.com/rak200/coding-standard-php/compare/0.3.2...0.3.3) (2026-08-13)
 
 
