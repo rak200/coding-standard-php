@@ -1,0 +1,52 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Layer 2 (PHP) — the security scanner, bound to the `scan` verb.
+ *
+ *     bin/rak200-scan
+ *
+ * Runs semgrep with the command RFC 0017 decides, and exits with semgrep's own code so
+ * the pipeline's enforcing step has something that can differ from zero. The arguments
+ * live in ../src/ScanCommand.php so that they can be measured — see the note there, and
+ * the same note on bin/coverage-floor.
+ *
+ * @author rak200 <rak.ricardo@windowslive.com>
+ */
+
+use Rak200\CodingStandardPhp\ScanCommand;
+
+// Two roots, because this binary runs in two places: from a checkout of this repository
+// (its own vendor/) and from a consumer's vendor/bin (three levels up). Composer's own
+// bin proxy resolves the second; the first exists so the standard can run on itself.
+foreach ([__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php'] as $autoload) {
+    if (is_file($autoload)) {
+        require $autoload;
+
+        break;
+    }
+}
+
+$arguments = ScanCommand::arguments();
+
+// Reported before running, because the whole defect this binary exists to fix was a
+// command nobody could see. The CI log now carries the exact invocation next to its
+// result, so a future divergence is one line of reading rather than an investigation.
+fwrite(STDOUT, 'scan: ' . implode(' ', $arguments) . "\n");
+
+// Every element escaped the same way, the program name included. Splitting the list to
+// treat the binary differently is what the first version did, and it handed PHPStan a
+// `string|null` from `array_shift` — an error worth reading rather than casting away,
+// since a list this code guarantees to be non-empty is not a list the compiler knows is.
+//
+// `passthru` and not `exec`: semgrep's own output IS the diagnosis, and swallowing it to
+// re-print a summary is how a scanner becomes a number nobody can act on.
+passthru(implode(' ', array_map(escapeshellarg(...), $arguments)), $status);
+
+if ($status === 127) {
+    fwrite(STDERR, "::error::semgrep is not installed — `scan` cannot run, and a scanner that is absent is not a scanner that found nothing\n");
+}
+
+exit($status);
