@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/rak200/coding-standard-php/compare/0.3.4...0.3.5) (2026-08-27)
+
+
+### Miscellaneous Chores
+
+* mark the pre-push hook executable ([#28](https://github.com/rak200/coding-standard-php/issues/28)) ([4c47639](https://github.com/rak200/coding-standard-php/commit/4c476397e5fb3196cdf8057357d19f75dbdbddbe))
+
 ## [0.3.4](https://github.com/rak200/coding-standard-php/compare/0.3.3...0.3.4) (2026-08-14)
 
 
