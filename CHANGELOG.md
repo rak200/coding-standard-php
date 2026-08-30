@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.6](https://github.com/rak200/coding-standard-php/compare/0.3.5...0.3.6) (2026-08-30)
+
+
+### Features
+
+* the analyser settings carry their argument, and suppressions must say why ([#34](https://github.com/rak200/coding-standard-php/issues/34)) ([4a52629](https://github.com/rak200/coding-standard-php/commit/4a5262919c302120f33441d15930ec309aa4277a))
+
 ## [0.3.5](https://github.com/rak200/coding-standard-php/compare/0.3.4...0.3.5) (2026-08-27)
 
 
