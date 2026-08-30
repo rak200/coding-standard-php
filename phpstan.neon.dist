@@ -15,7 +15,26 @@
 # consumer's business.
 #
 # A local phpstan.neon may override anything here and stays untracked.
+#
+# The three parameters beside `level` each carry their argument in CONVENTIONS.md,
+# under "The three settings beside `level`". In short, and measured rather than
+# reasoned:
+#
+#   treatPhpDocTypesAsCertain  PHP erases generics, so a guard over a class-string<T>
+#                              or an iterable<K,V> is the only check there is, not a
+#                              redundant one. PHPStan's default (true) reports it as
+#                              redundant: four such errors across the estate, all the
+#                              same identifier, none a bug.
+#   reportUnmatchedIgnoredErrors  already the default; declared as a LOCK, because a
+#                              suppression that has stopped applying is this estate's
+#                              own `looks green, enforces nothing` shape.
+#   reportIgnoresWithoutComments  NOT the default. The rule that a suppression must
+#                              say why was written long before anything graded it.
+#                              PHPStan reads the reason in exactly one form:
+#                              `@phpstan-ignore <id> (reason)`, one line, once per
+#                              identifier.
 parameters:
     level: max
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: true
+    reportIgnoresWithoutComments: true

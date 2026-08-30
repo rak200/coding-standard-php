@@ -73,6 +73,58 @@ The formatter config protects that idiom deliberately: `phpdoc_to_comment` ignor
 `return_assignment` is off. Neither is style preference; both exist to keep the annotation where
 it belongs.
 
+### The three settings beside `level`, and why each is there
+
+`phpstan.neon.dist` sets three parameters next to the level. Two of them deviate from PHPStan's
+own defaults, and until 2026-08-30 none carried a reason — in a file whose neighbouring comment
+spends a paragraph explaining why `paths` is *absent*. They are stated here because a setting that
+changes what every consumer's code must look like is a rule, and a rule here carries its argument.
+
+**`treatPhpDocTypesAsCertain: false`** — PHPStan's default is `true`, which reports *always true* /
+*already narrowed* errors from types that exist only in PHPDoc. **PHP erases generics.** A
+`class-string<T>` or an `iterable<TKey, TValue>` has no runtime existence, so a guard against one
+is not redundant — it is the only check there is, and these are libraries whose callers may run no
+analyser at all. The default asks you to suppress precisely where the type is least certain.
+
+Measured across the estate on 2026-08-30, with the default restored: **four errors, all the same
+identifier** — `staticMethod.alreadyNarrowedType` — and all four on a runtime guard over a generic:
+`Type::isA()` with `class-string<T of UnitEnum>` in `rak200/caster`, and `Type::isIterable()` with
+`iterable<…>` in `rak200/utils`'s `Arr` and `Iter`. None was a bug. Under `false`, `utils` needs no
+suppression at all and `caster` needs one. Under `true` it would be four, growing by one with every
+new guard, in an estate whose conventions forbid suppressing.
+
+There is no narrower setting: PHPStan 2.2 exposes this as a global boolean, and
+`tips.treatPhpDocTypesAsCertain` only decides whether the hint is printed.
+
+**`reportUnmatchedIgnoredErrors: true`** — this *is* PHPStan's default, and it is declared anyway,
+as a lock rather than as a restatement. It is what makes a suppression that has stopped applying
+**fail** instead of sitting in the file protecting nothing, and that is not hypothetical: it is
+what surfaced `caster`'s stale ignore the day Layer 2 changed which condition was redundant. A
+silently obsolete suppression is the estate's own *looks green, enforces nothing* shape, so the
+behaviour is pinned here rather than inherited.
+
+**`reportIgnoresWithoutComments: true`** — PHPStan's default is `false`; this turns it on, because
+the rule it enforces was already written and nothing graded it. A suppression must say why it is
+there, and PHPStan reads that reason only in one form:
+
+```php
+// @phpstan-ignore identifier (the reason)
+```
+
+The comment belongs **to the identifier**, on **one line**, **once per identifier**. Three shapes
+that look correct and are not, all three measured:
+
+| written | what happens |
+| --- | --- |
+| `@phpstan-ignore-next-line identifier` | suppresses **every** error on the line; the identifier is decorative |
+| `@phpstan-ignore a, b (reason)` | the comment attaches to neither identifier |
+| a reason continued onto a second `//` line | parse error — `Unexpected end, unclosed opening` |
+
+The first is the one that costs something. `rak200/caster` carried two, each written as
+`@phpstan-ignore-next-line argument.type`, and each was **also** hiding an `argument.templateType`
+its author never saw — a suppression that reads narrower than it is, in the analyser this estate
+uses to find exactly that shape.
+
 ## Code style
 
 **`@PhpCsFixer`, the strictest consolidated preset**, over `src/` and `tests/`. The overrides are
