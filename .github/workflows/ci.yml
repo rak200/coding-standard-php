@@ -43,7 +43,7 @@ jobs:
   # The job MUST be named `ci` and the reusable workflow's last job `gate`: together
   # they publish the required check `ci / gate`. Pin an exact tag, never a moving alias.
   ci:
-    uses: rak200/.github/.github/workflows/php.yml@2.0.0
+    uses: rak200/.github/.github/workflows/php.yml@2.1.0
     with:
       variant: php-config
       # `docs/` stays mandatory; only the symbol enumeration stands down. This package's
