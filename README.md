@@ -3,6 +3,7 @@
 [![Latest tag](https://img.shields.io/github/v/tag/rak200/coding-standard-php?sort=semver)](https://github.com/rak200/coding-standard-php/tags)
 [![PHP](https://img.shields.io/badge/php-8.4%2B-777bb4?logo=php&logoColor=white)](https://www.php.net/)
 [![PHPStan](https://img.shields.io/badge/PHPStan-level%20max-brightgreen?logo=php&logoColor=white)](phpstan.neon.dist)
+[![Mutation testing](https://img.shields.io/badge/Infection-min%20covered%20MSI%20100%25-brightgreen?logo=php&logoColor=white)](infection.json5.dist)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Layer 2 of the rak200 baseline, for PHP**: the enforcing configuration and the prose that
