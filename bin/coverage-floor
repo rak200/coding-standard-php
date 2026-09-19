@@ -40,9 +40,29 @@ foreach ([__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php
 $report = $argv[1] ?? 'coverage.xml';
 $floorFile = $argv[2] ?? '.coverage-floor';
 
+// The tree the report is checked against. `src/` by convention rather than by
+// configuration: every repository this grades keeps its source there, and a binary that
+// took a path would be one more thing to get wrong per repository. No src/ — this package
+// running somewhere that has none — means an empty list, and evaluate() skips the
+// staleness checks rather than inventing a verdict about a tree it cannot see.
+// ONLY for the default report, and that is the whole reason the condition exists. A caller
+// that names a report has said nothing about which tree it describes — the test suite grades
+// fixtures in /tmp — so comparing those against the src/ of wherever the binary happens to
+// run would refuse correct input. With the default, the report is this repository's by
+// construction: the pipeline writes it here, one step earlier.
+$sources = [];
+if (!isset($argv[1]) && is_dir('src')) {
+    $found = new RecursiveIteratorIterator(new RecursiveDirectoryIterator('src', FilesystemIterator::SKIP_DOTS));
+    foreach ($found as $file) {
+        if ($file instanceof SplFileInfo && $file->isFile() && $file->getExtension() === 'php') {
+            $sources[] = $file->getPathname();
+        }
+    }
+}
+
 try {
     ['actual' => $actual, 'floor' => $floor, 'total' => $total, 'covered' => $covered, 'rose' => $rose]
-        = CoverageFloor::evaluate($report, $floorFile);
+        = CoverageFloor::evaluate($report, $floorFile, $sources);
 } catch (FloorException $error) {
     fwrite(STDERR, "::error::coverage floor: {$error->getMessage()}\n");
 

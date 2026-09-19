@@ -43,7 +43,9 @@ final class CoverageFloorTest extends TestCase
 
     protected function tearDown(): void
     {
-        foreach ([$this->report, $this->floorFile] as $path) {
+        // `{,.}*` with GLOB_BRACE, because `.coverage-floor` starts with a dot and a plain
+        // `*` leaves it behind — which is what left the directory non-empty for rmdir.
+        foreach (glob($this->directory . '/{,.}*', GLOB_BRACE) ?: [] as $path) {
             if (is_file($path)) {
                 unlink($path);
             }
@@ -361,6 +363,183 @@ final class CoverageFloorTest extends TestCase
     /**
      * A clover report with the given statement totals, trimmed to what the parser reads.
      */
+    public function testCloverFilesNamesEveryFileTheReportMeasured(): void
+    {
+        $this->assertSame(
+            ['/app/src/Arr.php', '/app/src/Str.php'],
+            CoverageFloor::cloverFiles(self::cloverWithFiles('/app/src/Arr.php', '/app/src/Str.php')),
+        );
+    }
+
+    public function testCloverFilesIsEmptyForADocumentThatIsNotXml(): void
+    {
+        // Returns rather than throws: parseClover already rejects a malformed report with a
+        // message about the report, and a second throw here would report the same defect twice
+        // in different words.
+        $this->assertSame([], CoverageFloor::cloverFiles('not xml at all'));
+    }
+
+    public function testCloverFilesIsEmptyWhenNoFileIsNamed(): void
+    {
+        $this->assertSame([], CoverageFloor::cloverFiles(self::clover(100, 100)));
+    }
+
+    public function testAbsentFromComparesBasenamesRatherThanPaths(): void
+    {
+        // The report records where the suite ran — inside a container, `/app/src/Arr.php` —
+        // and the caller is looking at `src/Arr.php`. Comparing paths would call every file
+        // absent and refuse every report produced anywhere but the caller's own directory.
+        $this->assertSame(
+            [],
+            CoverageFloor::absentFrom(['src/Arr.php'], ['/app/src/Arr.php']),
+        );
+    }
+
+    public function testAbsentFromNamesTheFilesTheReportNeverMeasured(): void
+    {
+        $this->assertSame(
+            ['src/New.php'],
+            CoverageFloor::absentFrom(['src/Arr.php', 'src/New.php'], ['/app/src/Arr.php']),
+        );
+    }
+
+    public function testEvaluateRefusesAReportThatNeverMeasuredASourceFile(): void
+    {
+        // The defect this exists for: a class added to src/ with no test, and the verb
+        // printed `coverage rose` and exited 0 because the report on disk predated it.
+        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->report, self::cloverWithFiles('/app/src/Arr.php'));
+
+        $this->expectException(FloorException::class);
+        $this->expectExceptionMessage('describes a different tree — it never measured src/New.php');
+
+        CoverageFloor::evaluate($this->report, $this->floorFile, ['src/Arr.php', 'src/New.php']);
+    }
+
+    public function testEvaluateNamesAtMostThreeAbsentFilesAndCountsTheRest(): void
+    {
+        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->report, self::cloverWithFiles('/app/src/Arr.php'));
+
+        $this->expectException(FloorException::class);
+        $this->expectExceptionMessage('a.php, b.php, c.php and 1 more');
+
+        CoverageFloor::evaluate($this->report, $this->floorFile, ['a.php', 'b.php', 'c.php', 'd.php']);
+    }
+
+    public function testEvaluateRefusesAReportOlderThanASourceFileItAlreadyMeasured(): void
+    {
+        // What the file set cannot see: lines added to a file the report already lists. The
+        // message says `may` rather than accusing, because a rebase moves mtime without
+        // moving content.
+        $source = $this->directory . '/Arr.php';
+        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->report, self::cloverWithFiles('/app/src/Arr.php'));
+        file_put_contents($source, '<?php');
+        touch($this->report, 1000);
+        touch($source, 2000);
+
+        $this->expectException(FloorException::class);
+        $this->expectExceptionMessage('is older than');
+
+        CoverageFloor::evaluate($this->report, $this->floorFile, [$source]);
+    }
+
+    public function testEvaluateAcceptsAReportNewerThanEverySourceFile(): void
+    {
+        $source = $this->directory . '/Arr.php';
+        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->report, self::cloverWithFiles('/app/src/Arr.php'));
+        file_put_contents($source, '<?php');
+        touch($source, 1000);
+        touch($this->report, 2000);
+
+        $result = CoverageFloor::evaluate($this->report, $this->floorFile, [$source]);
+
+        $this->assertSame(95.0, $result['floor']);
+    }
+
+    public function testEvaluateSkipsBothStalenessChecksWhenGivenNoSources(): void
+    {
+        // A caller with nothing to compare against gets the old behaviour rather than a
+        // verdict about a tree it cannot see — which is what every existing caller passes.
+        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->report, self::cloverWithFiles('/app/src/Arr.php'));
+        touch($this->report, 1000);
+
+        $this->assertSame(95.0, CoverageFloor::evaluate($this->report, $this->floorFile)['floor']);
+    }
+
+    public function testEvaluateSaysAndOneMoreOnlyWhenThereIsAFourth(): void
+    {
+        // Exactly three absent files name all three and count nothing: `> 3` rather than
+        // `>= 3`, which would append "and 0 more".
+        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->report, self::cloverWithFiles('/app/src/Arr.php'));
+
+        $this->expectException(FloorException::class);
+        $this->expectExceptionMessage('never measured a.php, b.php, c.php. Re-run');
+
+        CoverageFloor::evaluate($this->report, $this->floorFile, ['a.php', 'b.php', 'c.php']);
+    }
+
+    public function testEvaluateNamesTheFirstOfTwoSourcesSharingTheNewestTime(): void
+    {
+        // `>` rather than `>=` in the scan: with two files at the same mtime the message
+        // names the first, and flipping the comparison would name the last. The message is
+        // the whole value of this check, so which file it names is behaviour.
+        $first = $this->directory . '/a.php';
+        $second = $this->directory . '/b.php';
+        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->report, self::cloverWithFiles('/app/a.php', '/app/b.php'));
+        file_put_contents($first, '<?php');
+        file_put_contents($second, '<?php');
+        touch($this->report, 1000);
+        touch($first, 2000);
+        touch($second, 2000);
+
+        $this->expectException(FloorException::class);
+        $this->expectExceptionMessage('is older than ' . $first . ',');
+
+        CoverageFloor::evaluate($this->report, $this->floorFile, [$first, $second]);
+    }
+
+    public function testEvaluateAcceptsAReportExactlyAsOldAsItsNewestSource(): void
+    {
+        // The boundary: a report written in the same second as the last source edit is the
+        // report of that edit. `>=` here would refuse the run the pipeline itself produces.
+        $source = $this->directory . '/a.php';
+        file_put_contents($this->floorFile, "95\n");
+        file_put_contents($this->report, self::cloverWithFiles('/app/a.php'));
+        file_put_contents($source, '<?php');
+        touch($source, 2000);
+        touch($this->report, 2000);
+
+        $this->assertSame(95.0, CoverageFloor::evaluate($this->report, $this->floorFile, [$source])['floor']);
+    }
+
+    /**
+     * A clover report naming the files it measured, measuring exactly the floor these tests
+     * use — 95 of 100 statements. Not 100%%: that is more than a point above the floor and
+     * the upper band would refuse it before the staleness checks are reached.
+     */
+    private static function cloverWithFiles(string ...$files): string
+    {
+        $entries = '';
+        foreach ($files as $file) {
+            $entries .= sprintf('<file name="%s"><metrics statements="1" coveredstatements="1"/></file>', $file);
+        }
+
+        return sprintf(
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<coverage generated="1"><project timestamp="1">%s<metrics files="1" loc="10" ncloc="10" '
+            . 'classes="1" methods="1" coveredmethods="1" conditionals="0" coveredconditionals="0" '
+            . 'statements="100" coveredstatements="95" elements="1" coveredelements="1"/>'
+            . '</project></coverage>',
+            $entries,
+        );
+    }
+
     private static function clover(int $total, int $covered): string
     {
         return sprintf(

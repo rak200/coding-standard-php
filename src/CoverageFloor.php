@@ -105,10 +105,7 @@ final class CoverageFloor
         // returning false, and the throw below happens after the restore either way — so
         // it protected nothing and could not be tested. Mutation found it: unwrapping the
         // finally changed no observable behaviour on any input.
-        $previous = libxml_use_internal_errors(true);
-        $document = simplexml_load_string($xml);
-        libxml_clear_errors();
-        libxml_use_internal_errors($previous);
+        $document = self::load($xml);
 
         if (!$document instanceof SimpleXMLElement || !isset($document->project->metrics)) {
             throw new FloorException($label . ' is not a clover report with project metrics');
@@ -130,10 +127,64 @@ final class CoverageFloor
     }
 
     /**
+     * The files a clover report describes, as the report spells them.
+     *
+     * A report names every file it measured, which is what makes staleness detectable with
+     * no clock involved: a source file on disk that the report never heard of proves the
+     * report describes a different tree. Paths come back verbatim — they are absolute and
+     * rooted whereever the suite ran, so the caller compares basenames rather than paths.
+     *
+     * @param string $xml raw report contents
+     *
+     * @return list<string>
+     */
+    public static function cloverFiles(string $xml): array
+    {
+        $document = self::load($xml);
+
+        if (!$document instanceof SimpleXMLElement) {
+            return [];
+        }
+
+        $files = [];
+        foreach ($document->xpath('//file[@name]') ?: [] as $file) {
+            $files[] = (string) $file['name'];
+        }
+
+        return $files;
+    }
+
+    /**
+     * The source files a report is missing, by basename.
+     *
+     * Basenames rather than paths: the report records where the suite ran, which inside a
+     * container is not where the caller is looking. Two source files with the same basename
+     * in different directories would collapse into one — accepted, because the alternative
+     * is path arithmetic between two roots that need not share a prefix.
+     *
+     * @param list<string> $sources source files on disk
+     * @param list<string> $covered files the report describes
+     *
+     * @return list<string>
+     */
+    public static function absentFrom(array $sources, array $covered): array
+    {
+        $known = array_map(static fn (string $path): string => basename($path), $covered);
+
+        return array_values(array_filter(
+            $sources,
+            static fn (string $path): bool => !in_array(basename($path), $known, true),
+        ));
+    }
+
+    /**
      * Compares a clover report against a repository's floor.
      *
-     * @param string $report    path to the clover report
-     * @param string $floorFile path to the `.coverage-floor` file
+     * @param string       $report    path to the clover report
+     * @param string       $floorFile path to the `.coverage-floor` file
+     * @param list<string> $sources   source files the report must describe; empty skips the
+     *                                staleness checks, which is what a caller with nothing to
+     *                                compare against should get rather than a guess
      *
      * @return array{actual: float, floor: float, total: int, covered: int, rose: bool}
      *
@@ -141,7 +192,7 @@ final class CoverageFloor
      *                        measured coverage is below the floor or more than
      *                        {@see self::TOLERANCE} points above it
      */
-    public static function evaluate(string $report, string $floorFile): array
+    public static function evaluate(string $report, string $floorFile, array $sources = []): array
     {
         if (!is_file($floorFile)) {
             throw new FloorException(
@@ -154,10 +205,62 @@ final class CoverageFloor
         }
 
         $floor = self::parseFloor((string) file_get_contents($floorFile), $floorFile);
-        ['total' => $total, 'covered' => $covered, 'percent' => $actual] = self::parseClover(
-            (string) file_get_contents($report),
-            $report,
-        );
+        // @infection-ignore-all CastString: `is_file` above guarantees a readable path, so
+        // file_get_contents cannot return false here and dropping the cast changes nothing.
+        $xml = (string) file_get_contents($report);
+        ['total' => $total, 'covered' => $covered, 'percent' => $actual] = self::parseClover($xml, $report);
+
+        // A report is an artefact of the run that produced it, and nothing regenerates it:
+        // `coverage.xml` is in the seeded .gitignore, so `coverage` on its own grades
+        // whatever is on disk. Measured on rak200/utils: a class added to src/ with no test
+        // at all, and the verb printed `coverage rose to 97.95% — raise .coverage-floor to
+        // match` and exited 0. Not merely a stale number — the advice was the opposite of
+        // correct. CI never sees this, because the step before it writes the report, which
+        // is the bad half: the verb means one thing in the pipeline and a weaker thing on
+        // the machine where someone would use it as a pre-push check.
+        // rak200/coding-standard-php#52
+        if ($sources !== []) {
+            // FIRST the file set, because it accuses precisely and without a clock: a source
+            // file the report never mentions cannot be explained by a rebase or a touch.
+            $absent = self::absentFrom($sources, self::cloverFiles($xml));
+            if ($absent !== []) {
+                throw new FloorException(sprintf(
+                    '%s describes a different tree — it never measured %s. Re-run the suite with --coverage-clover=%s',
+                    $report,
+                    implode(', ', array_slice($absent, 0, 3)) . (count($absent) > 3 ? sprintf(' and %d more', count($absent) - 3) : ''),
+                    $report,
+                ));
+            }
+
+            // THEN mtime, for what the file set cannot see: lines added to a file the report
+            // already lists. This half is a heuristic and says so — a rebase or a checkout
+            // moves mtime without moving content — so it names the file and the fix rather
+            // than asserting the report is wrong.
+            // @infection-ignore-all DecrementInteger: `$sources` is non-empty inside this
+            // branch, so the loop always assigns and the seed is never compared.
+            $newest = 0;
+            $newestFile = '';
+            foreach ($sources as $source) {
+                // @infection-ignore-all CastInt: the path comes from a directory scan a
+                // moment earlier, so filemtime cannot return false without a race no test
+                // can stage.
+                $at = (int) filemtime($source);
+                if ($at > $newest) {
+                    $newest = $at;
+                    $newestFile = $source;
+                }
+            }
+
+            // @infection-ignore-all CastInt: `is_file($report)` was checked above.
+            if ($newest > (int) filemtime($report)) {
+                throw new FloorException(sprintf(
+                    '%s is older than %s, so it may describe a tree that has since changed. Re-run the suite with --coverage-clover=%s',
+                    $report,
+                    $newestFile,
+                    $report,
+                ));
+            }
+        }
 
         if ($actual < $floor) {
             throw new FloorException(sprintf('%.2f%% is below the floor of %.2f%%', $actual, $floor));
@@ -191,5 +294,34 @@ final class CoverageFloor
             'covered' => $covered,
             'rose' => $actual > $floor,
         ];
+    }
+
+    /**
+     * Parses a document without leaking libxml state, or false when it is malformed.
+     *
+     * Internal error handling rather than `@`: the silence operator would also swallow an
+     * error raised by anything this call reaches, and libxml has its own buffer for exactly
+     * this. Both the buffer and the flag are restored, because a test runner and a CI job
+     * both care about libxml state they did not set.
+     *
+     * Straight-line, not try/finally. The finally was written for an exception
+     * `simplexml_load_string` cannot raise — it reports a malformed document by returning
+     * false — so it protected nothing and could not be tested. Mutation found it: unwrapping
+     * the finally changed no observable behaviour on any input.
+     *
+     * One loader for both readers. It was duplicated when `cloverFiles` arrived, and mutation
+     * found that too — the copy's restore calls had nothing asserting them, because the
+     * reasoning above lived at the other call site.
+     *
+     * @param string $xml raw document
+     */
+    private static function load(string $xml): false|SimpleXMLElement
+    {
+        $previous = libxml_use_internal_errors(true);
+        $document = simplexml_load_string($xml);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        return $document;
     }
 }
