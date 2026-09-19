@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.7](https://github.com/rak200/coding-standard-php/compare/0.3.6...0.3.7) (2026-09-19)
+
+
+### Bug Fixes
+
+* the floor refuses a report that describes another tree ([#60](https://github.com/rak200/coding-standard-php/issues/60)) ([47c9b24](https://github.com/rak200/coding-standard-php/commit/47c9b24b35767c4209ff84b043d4acee7fc79874))
+
 ## [0.3.6](https://github.com/rak200/coding-standard-php/compare/0.3.5...0.3.6) (2026-08-30)
 
 
