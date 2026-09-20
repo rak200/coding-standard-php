@@ -23,8 +23,6 @@ use function unlink;
  * so these cases prove the wiring rather than the logic.
  *
  * @internal
- *
- * @coversNothing
  */
 final class CoverageFloorBinaryTest extends TestCase
 {

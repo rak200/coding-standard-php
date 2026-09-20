@@ -23,8 +23,6 @@ use function preg_match;
  * this repository, it needs nothing installed, and it runs with `composer test`.
  *
  * @internal
- *
- * @coversNothing
  */
 final class MandatedValuesTest extends TestCase
 {

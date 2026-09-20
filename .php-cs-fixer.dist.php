@@ -71,6 +71,21 @@ return (new PhpCsFixer\Config())
         // reads like one.
         'concat_space' => ['spacing' => 'one'],
 
+        // The preset writes `@coversNothing` into any test class that declares no coverage
+        // target, and PHPUnit stopped reading docblock metadata in 12 — so under the runner
+        // this package pins the annotation is invisible. Measured here with
+        // `requireCoverageMetadata="true"`: all 54 tests reported *does not define a code
+        // coverage target* while every class carried the annotation. An annotation that reads
+        // as an assertion and asserts nothing is the shape this standard exists to remove, so
+        // the rule is off rather than left writing it.
+        //
+        // `php_unit_attributes` — the rule that would write the form PHPUnit does read — is not
+        // in the preset and is deliberately not added here. It converts an existing
+        // `@coversNothing` into a live `#[CoversNothing]`, which takes a repository from full
+        // coverage to zero through `composer fix`, a diff nobody reads. It can only be turned
+        // on after every consumer declares real targets.
+        'php_unit_test_class_requires_covers' => false,
+
         // Two rules that would destroy a documented idiom, and are off for that reason alone.
         //
         // A PHPStan error caused by a deficient native stub — a functionMap entry that erases

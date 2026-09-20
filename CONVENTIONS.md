@@ -129,8 +129,15 @@ uses to find exactly that shape.
 
 **`@PhpCsFixer`, the strictest consolidated preset**, over `src/` and `tests/`. The overrides are
 few and each carries its rationale inline in `.php-cs-fixer.dist.php`: the `use function`
-inventory, the member order, natural (non-Yoda) comparisons, one space around concatenation, and
-the two rules above.
+inventory, the member order, natural (non-Yoda) comparisons, one space around concatenation, the
+two rules above, and `php_unit_test_class_requires_covers`.
+
+That last one is off because the preset writes `@coversNothing` into a test class that declares
+no coverage target, and **PHPUnit stopped reading docblock metadata in 12** — so under the runner
+this standard pins it is an annotation nothing reads. What *does* declare a target is
+`#[CoversClass]`, which PHPUnit 13 reads and which this standard does not yet require of anyone:
+nothing here asserts that a test class names what it covers, and until that is decided a test
+class that names nothing is caught by no mechanism at all.
 
 Run the fixer on the language floor (8.4) to match it. A newer runtime needs
 `PHP_CS_FIXER_IGNORE_ENV=1` and prints a harmless version warning.

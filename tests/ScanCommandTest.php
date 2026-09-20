@@ -9,8 +9,6 @@ use Rak200\CodingStandardPhp\ScanCommand;
 
 /**
  * @internal
- *
- * @coversNothing
  */
 final class ScanCommandTest extends TestCase
 {

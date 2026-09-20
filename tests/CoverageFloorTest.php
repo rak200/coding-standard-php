@@ -22,8 +22,6 @@ use function unlink;
 
 /**
  * @internal
- *
- * @coversNothing
  */
 final class CoverageFloorTest extends TestCase
 {
