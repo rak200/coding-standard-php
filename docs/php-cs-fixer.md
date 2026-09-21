@@ -15,6 +15,7 @@ return (require __DIR__ . '/vendor/rak200/coding-standard-php/.php-cs-fixer.dist
 
 - [Why the finder is yours](#why-the-finder-is-yours)
 - [The coverage annotation the runner cannot read](#the-coverage-annotation-the-runner-cannot-read)
+- [The one risky rule](#the-one-risky-rule)
 
 ---
 
@@ -55,5 +56,39 @@ What this standard does **not** yet do is require those targets. Declaring one i
 `#[CoversClass(TheClassUnderTest::class)]` plus `requireCoverageMetadata="true"` in `phpunit.xml`,
 where `failOnRisky` makes an omission exit 1 — but nothing here mandates either, so a test class
 that names nothing it covers is today caught by no mechanism.
+
+[↑ Back to top](#php-cs-fixerdistphp)
+
+---
+
+## The one risky rule
+
+`declare(strict_types=1)` at the top of every file has been in this standard since its first
+version, and until now **nothing enforced it**. The rule that does is `declare_strict_types`, and
+it ships in three rule sets — `@PhpCsFixer:risky`, `@Symfony:risky`, `@PHP70Migration:risky` — all
+of them risky, none of them taken here. The effective rule set never mentioned the declaration.
+
+Measured against a class with no declaration, before enabling it:
+
+```
+composer lint             ->  Found 0 of 1 files, exit 0
+phpstan, level: max       ->  [OK] No errors
+```
+
+Both gates pass a file the standard says must not exist. Enabled, the same file:
+
+```
+composer lint             ->  Found 1 of 1 files, exit 8
+                              + declare(strict_types=1);
+```
+
+**It is the single rule, not the set.** `setRiskyAllowed(true)` is already on, so a risky rule can
+be named on its own; the sets that carry this one also carry dozens of other semantic changes that
+would have to be measured consumer by consumer first.
+
+The cost of omitting it is not stylistic. Without the declaration PHP coerces scalars at every call
+boundary: `ping(1)` against a `string` parameter succeeds and hands the body `'1'`. That is the
+silent-wrong-answer class `level: max`, `treatPhpDocTypesAsCertain: false` and
+`reportUnmatchedIgnoredErrors: true` are all there to remove.
 
 [↑ Back to top](#php-cs-fixerdistphp)

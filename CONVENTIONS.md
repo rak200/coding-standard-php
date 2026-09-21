@@ -14,8 +14,12 @@ Import both from a project's `CLAUDE.md`:
 
 ## Baseline
 
-- **PHP 8.4+**, with `declare(strict_types=1)` at the top of every file. CI also runs the suite
-  on the next PHP minor.
+- **PHP 8.4+**, with `declare(strict_types=1)` at the top of every file — enforced by
+  `declare_strict_types` in the formatter config, so `composer lint` reds on a file without it
+  and `composer fix` writes it. The rule is risky and named on its own rather than taken from a
+  risky set. Until it was enabled, nothing enforced this at all: a class with no declaration
+  passed both `composer lint` and PHPStan at `level: max`. CI also runs the suite on the next
+  PHP minor.
 - **No runtime Composer dependencies** — only the extensions a project genuinely needs, declared
   under `require` (`ext-mbstring` wherever `mb_*` is used, `ext-bcmath` for big-number work).
 - **One dev dependency**: this package. It brings the analyser, the formatter, the test runner,

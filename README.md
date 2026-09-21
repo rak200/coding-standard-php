@@ -63,13 +63,16 @@ repository tried the snippets above.
 | Config | The decision it carries |
 | --- | --- |
 | `phpstan.neon.dist` | `level: max`, over `src/` **and** `tests/` |
-| `.php-cs-fixer.dist.php` | `@PhpCsFixer` — the strictest consolidated preset — with six stated overrides |
+| `.php-cs-fixer.dist.php` | `@PhpCsFixer` — the strictest consolidated preset — with seven stated overrides |
 | `infection.json5.dist` | `minCoveredMsi: 100`; a survivor is killed, never accommodated |
 | `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor` |
 
 **The overrides are the interesting part**, and each states its reason inline rather than
 existing by habit: the `use function` inventory, member order with magic last, natural
-(non-Yoda) comparisons, one space around concatenation — and three rules turned *off*. Two of
+(non-Yoda) comparisons, one space around concatenation, `declare_strict_types` — the one risky
+rule taken, named on its own rather than through a risky set, because without it PHP coerces at
+every call boundary and nothing else here catches a file that omits the declaration — and three
+rules turned *off*. Two of
 them, `phpdoc_to_comment` for `@var` and `return_assignment`, would destroy the inline
 `/** @var */` idiom that keeps a deficient native stub from distorting real code. The third,
 `php_unit_test_class_requires_covers`, writes `@coversNothing` into a test class that declares no
