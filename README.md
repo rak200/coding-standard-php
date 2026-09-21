@@ -63,15 +63,18 @@ repository tried the snippets above.
 | Config | The decision it carries |
 | --- | --- |
 | `phpstan.neon.dist` | `level: max`, over `src/` **and** `tests/` |
-| `.php-cs-fixer.dist.php` | `@PhpCsFixer` — the strictest consolidated preset — with five stated overrides |
+| `.php-cs-fixer.dist.php` | `@PhpCsFixer` — the strictest consolidated preset — with six stated overrides |
 | `infection.json5.dist` | `minCoveredMsi: 100`; a survivor is killed, never accommodated |
 | `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor` |
 
 **The overrides are the interesting part**, and each states its reason inline rather than
 existing by habit: the `use function` inventory, member order with magic last, natural
-(non-Yoda) comparisons, one space around concatenation — and two rules turned *off*
-(`phpdoc_to_comment` for `@var`, `return_assignment`) because they would destroy the inline
-`/** @var */` idiom that keeps a deficient native stub from distorting real code.
+(non-Yoda) comparisons, one space around concatenation — and three rules turned *off*. Two of
+them, `phpdoc_to_comment` for `@var` and `return_assignment`, would destroy the inline
+`/** @var */` idiom that keeps a deficient native stub from distorting real code. The third,
+`php_unit_test_class_requires_covers`, writes `@coversNothing` into a test class that declares no
+coverage target — **a docblock PHPUnit stopped reading in 12**, so under the runner this package
+pins it reads as an assertion and asserts nothing.
 
 `minMsi` is deliberately absent. Mandating it would silently mandate literal-100% line coverage
 as well, which is a different decision and belongs to each repository's `.coverage-floor`.
