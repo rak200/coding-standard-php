@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.8](https://github.com/rak200/coding-standard-php/compare/0.3.7...0.3.8) (2026-09-21)
+
+
+### Bug Fixes
+
+* the preset wrote a coverage annotation the pinned runner cannot read ([#63](https://github.com/rak200/coding-standard-php/issues/63)) ([e652e6f](https://github.com/rak200/coding-standard-php/commit/e652e6fee7d648a3673a70162cde8084daf16fb4))
+
 ## [0.3.7](https://github.com/rak200/coding-standard-php/compare/0.3.6...0.3.7) (2026-09-19)
 
 
