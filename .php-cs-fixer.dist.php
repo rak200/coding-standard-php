@@ -71,6 +71,21 @@ return (new PhpCsFixer\Config())
         // reads like one.
         'concat_space' => ['spacing' => 'one'],
 
+        // `declare(strict_types=1)` in every file is a rule this standard has always stated and
+        // nothing enforced. The rule that would is `declare_strict_types`, and it ships only in
+        // risky sets — `@PhpCsFixer:risky`, `@Symfony:risky`, `@PHP70Migration:risky` — none of
+        // which this config takes, so the effective rule set never mentioned the declaration.
+        // Measured before enabling it: a class with no declaration passed `composer lint` at
+        // `Found 0 of 1`, exit 0, and PHPStan at `level: max` reported no error on the same file.
+        // Without it PHP coerces at every call boundary — `ping(1)` against a `string` parameter
+        // succeeds and hands the body `'1'`, which is the silent-wrong-answer class the analyser
+        // settings next door exist to remove.
+        //
+        // Taken as the single rule rather than through a risky set: the sets carry dozens of
+        // other semantic changes that would have to be measured per consumer, and
+        // `setRiskyAllowed(true)` above already permits one rule to be named on its own.
+        'declare_strict_types' => true,
+
         // The preset writes `@coversNothing` into any test class that declares no coverage
         // target, and PHPUnit stopped reading docblock metadata in 12 — so under the runner
         // this package pins the annotation is invisible. Measured here with
