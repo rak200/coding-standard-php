@@ -39,14 +39,34 @@ namespace Rak200\CodingStandardPhp;
 final class ScanCommand
 {
     /**
-     * The registry rule packs, in the order the RFC names them.
+     * The registry configs, in the order the RFC names them, plus the rule it turned out
+     * neither of them carries.
      *
-     * `p/security-audit` is not decoration. It carries the `audit` subcategory, where
-     * `eval-use` lives — the rule that matches the negative canary this estate has planted
-     * twice. `p/php` alone is tuned for precision and answers a planted `eval($_POST[…])`
-     * with `0 findings`.
+     * The line above used to say `p/security-audit` carried `eval-use` and was therefore
+     * what answered the planted `eval($_POST[…])`. It does not. Measured against the
+     * registry on 2026-09-23: `p/security-audit` serves 225 rules and **not one of them is
+     * PHP** — python 70, java 40, go 24, javascript 20, typescript 20, generic 14, ruby 13,
+     * c 9, regex 4, hcl 3, dockerfile 1, kotlin 1 — so it cannot change what a PHP scan
+     * finds, and never could. Nothing regressed: the pull request that restored the pack
+     * recorded the command running **23** PHP rules, which is exactly what `p/php` alone
+     * contributes, and it still runs 23 today.
+     *
+     * `eval-use` is excluded from `p/php` by the very tuning that makes that pack precise:
+     * it is `confidence: LOW`, and every rule in `p/php` is MEDIUM or HIGH. So the rule is
+     * named here directly. Measured with a planted canary, same tree, one config apart:
+     * without it, 250 rules would have been 249, 24 PHP rules 23, and `1 finding
+     * (1 blocking)`, exit 1, would have been `0 findings`, exit 0.
+     *
+     * The directory — `r/php.lang.security`, 36 rules — was measured and rejected. It
+     * carries `weak-crypto`, which matches **any** `md5()` or `sha1()`, and the estate has
+     * five such calls that are all correct: four in `rak200/utils`'s `Hash` and one in
+     * `rak200/collections`. A gate that reds correct code is a gate people learn to route
+     * around.
+     *
+     * `p/security-audit` stays because it costs nothing and covers the day a repository
+     * here holds something other than PHP; it is no longer claimed to do more than that.
      */
-    public const array PACKS = ['p/php', 'p/security-audit'];
+    public const array PACKS = ['p/php', 'p/security-audit', 'r/php.lang.security.eval-use'];
 
     /** Where the SARIF report is written, for the publishing step to upload. */
     public const string REPORT = 'semgrep.sarif';

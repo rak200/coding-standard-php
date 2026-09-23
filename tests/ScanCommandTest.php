@@ -24,6 +24,7 @@ final class ScanCommandTest extends TestCase
                 'scan',
                 '--config=p/php',
                 '--config=p/security-audit',
+                '--config=r/php.lang.security.eval-use',
                 '--error',
                 '--sarif',
                 '--output=semgrep.sarif',
@@ -34,13 +35,17 @@ final class ScanCommandTest extends TestCase
         );
     }
 
-    public function testTheSecondPackIsPresentBecauseTheFirstAloneMissesTheCanary(): void
+    public function testTheRuleThatCatchesTheCanaryIsNamedOnItsOwn(): void
     {
-        // Named on its own, because losing this pack is the defect that shipped. `p/php`
-        // is tuned for precision and answers a planted `eval($_POST[…])` with 0 findings
-        // — measured, on 28 files, at every severity. `p/security-audit` carries the
-        // `audit` subcategory where the matching rule lives.
-        $this->assertContains('--config=p/security-audit', ScanCommand::arguments());
+        // This assertion used to name `p/security-audit`, on the belief that the pack
+        // carried `eval-use`. It does not: the pack serves 225 rules and not one is PHP,
+        // so it cannot change what a PHP scan finds. The rule that does is named directly,
+        // because `p/php` excludes it — `confidence: LOW`, where that pack is MEDIUM and
+        // HIGH throughout, which is the same tuning that makes it precise.
+        //
+        // Measured with a planted canary, one config apart on the same tree: 0 findings
+        // and exit 0 without this entry, 1 finding and exit 1 with it.
+        $this->assertContains('--config=r/php.lang.security.eval-use', ScanCommand::arguments());
     }
 
     public function testItAsksForANonZeroExitAndNotForASeverityFilter(): void
