@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/rak200/coding-standard-php/compare/0.3.8...0.4.0) (2026-09-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* the strict_types declaration is enforced, not only stated ([#66](https://github.com/rak200/coding-standard-php/issues/66))
+
+### Features
+
+* the strict_types declaration is enforced, not only stated ([#66](https://github.com/rak200/coding-standard-php/issues/66)) ([23b0ece](https://github.com/rak200/coding-standard-php/commit/23b0ece156be3b6ba88259d4dd7bb47205339d68))
+
 ## [0.3.8](https://github.com/rak200/coding-standard-php/compare/0.3.7...0.3.8) (2026-09-21)
 
 
