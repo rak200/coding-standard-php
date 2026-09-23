@@ -22,6 +22,22 @@ Import both from a project's `CLAUDE.md`:
   PHP minor.
 - **No runtime Composer dependencies** — only the extensions a project genuinely needs, declared
   under `require` (`ext-mbstring` wherever `mb_*` is used, `ext-bcmath` for big-number work).
+
+  **`genuinely` is the load-bearing word, and it cuts both ways.** An extension the shipped code
+  reaches must be declared, and the pipeline's *An extension in use is an extension declared* step
+  fails a `mb_*` call with no `ext-mbstring`. It is the only thing that can: CI installs `mbstring`
+  and `bcmath` on every run, so the suite, the analyser and the scanner all pass on a package that
+  forgot, and the failure waits for whoever installs it. Its reach is those two extensions, because
+  an extension is proven in use by its own surface and that surface differs per extension — a third
+  one is declared, or not, with nothing watching.
+
+  The other direction is a judgement and **nothing checks it**. An extension reached in a single
+  place, where a native equivalent would do, is not genuinely needed: the equivalent is the answer
+  and the declaration is the mistake, because a platform requirement narrows who can install the
+  package for as long as it stands. The test is what the extension is load-bearing *for* —
+  `BcMath\Number` is the return type of `caster`'s `toNumber()` and a member of `cast()`'s union
+  return, which no equivalent replaces without breaking the API, and that is the far end of the
+  scale from one call that could have been written another way.
 - **One dev dependency**: this package. It brings the analyser, the formatter, the test runner,
   the mutation engine and the coverage-floor binary with it, so a repository's `require-dev` does
   not drift from its siblings'. The one tool it cannot bring is the security scanner — see
