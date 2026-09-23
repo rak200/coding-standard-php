@@ -46,7 +46,7 @@ final class ScanCommand
      * twice. `p/php` alone is tuned for precision and answers a planted `eval($_POST[…])`
      * with `0 findings`.
      */
-    public const array PACKS = ['p/php', 'p/security-audit'];
+    public const array PACKS = ['p/php', 'p/security-audit', 'r/php.lang.security.eval-use'];
 
     /** Where the SARIF report is written, for the publishing step to upload. */
     public const string REPORT = 'semgrep.sarif';

@@ -24,6 +24,7 @@ final class ScanCommandTest extends TestCase
                 'scan',
                 '--config=p/php',
                 '--config=p/security-audit',
+                '--config=r/php.lang.security.eval-use',
                 '--error',
                 '--sarif',
                 '--output=semgrep.sarif',
