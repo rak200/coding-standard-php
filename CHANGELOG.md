@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.0](https://github.com/rak200/coding-standard-php/compare/0.4.0...0.5.0) (2026-09-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* the scanner missed the canary the prose said it caught ([#69](https://github.com/rak200/coding-standard-php/issues/69))
+
+### Bug Fixes
+
+* the scanner missed the canary the prose said it caught ([#69](https://github.com/rak200/coding-standard-php/issues/69)) ([63d2183](https://github.com/rak200/coding-standard-php/commit/63d21836034860dd7b257c90ef9fa2829712259c))
+
 ## [0.4.0](https://github.com/rak200/coding-standard-php/compare/0.3.8...0.4.0) (2026-09-21)
 
 
