@@ -40,7 +40,7 @@ eight in `composer.json`; CI asserts their presence.
 | `analyse` | `phpstan analyse --memory-limit=512M` |
 | `test` | `phpunit` |
 | `coverage` | `coverage-floor` — this package's binary, clover report against `.coverage-floor` |
-| `scan` | `semgrep scan --config=p/php --severity=ERROR --sarif -o semgrep.sarif` |
+| `scan` | `semgrep scan --config=p/php --config=p/security-audit --config=r/php.lang.security.eval-use --error --sarif --output=semgrep.sarif --metrics=off .` |
 | `mutation` | `infection --threads=max` |
 
 Three of them need a word beyond the binding.
@@ -50,6 +50,24 @@ skips any script shadowing a native command — under `composer validate` *and*
 `composer run-script validate` — printing *"A script named validate would override a Composer
 command and has been skipped"* before falling through. A declared `validate` would be a script
 that can never run, which reads as covered; CI asserts its absence.
+
+**That row is asserted, not trusted.** It is the command `bin/rak200-scan` runs, and
+`MandatedValuesTest` compares the two — the row drifted once already, carrying
+`--severity=ERROR`, which filters which rules run, in place of `--error`, which is the only flag
+that turns a finding into a non-zero exit. Substituting one for the other leaves a scanner that
+reports and never blocks.
+
+**The third config is a single rule, and it is there because the packs do not carry it.**
+`p/security-audit` serves no PHP rule at all, and `eval-use` is `confidence: LOW`, which is what
+`p/php` excludes to stay precise — so a planted `eval($_POST[…])` passed the gate at `0 findings`,
+exit 0. Naming the rule directly makes the same tree answer `1 finding (1 blocking)`, exit 1;
+taking the whole `r/php.lang.security` directory instead was measured and rejected, because its
+`weak-crypto` matches any `md5()` or `sha1()` and this estate has five such calls that are
+correct.
+
+**Insecure randomness is not covered by any of this**, and cannot be: semgrep-rules carries no
+PHP rule for it. §Safe defaults states the requirement and names no mechanism, because there is
+none.
 
 **`scan` is the one verb no Composer dependency satisfies.** semgrep is a Python tool, and the
 ecosystem standardises on it across languages rather than hunting a native equivalent per
