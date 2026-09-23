@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Rak200\CodingStandardPhp\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Rak200\CodingStandardPhp\ScanCommand;
 
 use function file_get_contents;
+use function implode;
 use function preg_match;
 
 /**
- * The numbers this standard mandates are stated twice: once as prose a human reads, and
- * once as configuration a tool executes. Nothing kept the two in step.
+ * What this standard mandates is stated twice: once as prose a human reads, and once as
+ * configuration a tool executes. Nothing kept the two in step.
  *
  * The pipeline asserts that a consumer does not weaken these values, and it reads them
  * from the configuration in this package — so the configuration is what the estate
@@ -43,6 +45,26 @@ final class MandatedValuesTest extends TestCase
             $this->matched('/`minCoveredMsi:\s*(\d+)`/', self::CONVENTIONS),
             $this->matched('/"minCoveredMsi"\s*:\s*(\d+)/', __DIR__ . '/../infection.json5.dist'),
             'CONVENTIONS.md §Testing form and infection.json5.dist state different floors',
+        );
+    }
+
+    /**
+     * The `scan` row is the one that already drifted, and it drifted silently. It lost
+     * `p/security-audit` — the pack carrying the rule this estate's planted canary matches —
+     * and it carried `--severity=ERROR`, which filters which rules run, where the command runs
+     * `--error`, the only flag that turns a finding into a non-zero exit. A reader who copied
+     * the row would have had a scanner that reports and never blocks.
+     *
+     * Compared as one string rather than flag by flag: a missing flag, an extra one and a
+     * reordered pair are all the same defect here, and a per-flag assertion would pass the
+     * reordering.
+     */
+    public function testTheStatedScanCommandIsTheConfiguredOne(): void
+    {
+        self::assertSame(
+            $this->matched('/\|\s*`scan`\s*\|\s*`([^`]+)`/', self::CONVENTIONS),
+            implode(' ', ScanCommand::arguments()),
+            'CONVENTIONS.md §The verbs, bound and ScanCommand::arguments() state different commands',
         );
     }
 

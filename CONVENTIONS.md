@@ -40,7 +40,7 @@ eight in `composer.json`; CI asserts their presence.
 | `analyse` | `phpstan analyse --memory-limit=512M` |
 | `test` | `phpunit` |
 | `coverage` | `coverage-floor` — this package's binary, clover report against `.coverage-floor` |
-| `scan` | `semgrep scan --config=p/php --severity=ERROR --sarif -o semgrep.sarif` |
+| `scan` | `semgrep scan --config=p/php --config=p/security-audit --error --sarif --output=semgrep.sarif --metrics=off .` |
 | `mutation` | `infection --threads=max` |
 
 Three of them need a word beyond the binding.
@@ -50,6 +50,12 @@ skips any script shadowing a native command — under `composer validate` *and*
 `composer run-script validate` — printing *"A script named validate would override a Composer
 command and has been skipped"* before falling through. A declared `validate` would be a script
 that can never run, which reads as covered; CI asserts its absence.
+
+**That row is asserted, not trusted.** It is the command `bin/rak200-scan` runs, and
+`MandatedValuesTest` compares the two — the row drifted once already, losing the pack that
+carries the rule the estate's planted canary matches and carrying `--severity=ERROR`, which
+filters which rules run, in place of `--error`, which is the only flag that turns a finding into
+a non-zero exit. Substituting one for the other leaves a scanner that reports and never blocks.
 
 **`scan` is the one verb no Composer dependency satisfies.** semgrep is a Python tool, and the
 ecosystem standardises on it across languages rather than hunting a native equivalent per
