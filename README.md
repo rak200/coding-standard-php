@@ -19,8 +19,8 @@ repository hygiene — is language-agnostic and lives in
 composer require --dev rak200/coding-standard-php
 ```
 
-It brings PHPStan, php-cs-fixer, PHPUnit and Infection with it, so a repository's `require-dev`
-cannot drift from its siblings'.
+It brings PHPStan, php-cs-fixer, PHPUnit, Infection and ComposerRequireChecker with it, so a
+repository's `require-dev` cannot drift from its siblings'.
 
 ## Use
 
