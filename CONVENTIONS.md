@@ -39,9 +39,27 @@ Import both from a project's `CLAUDE.md`:
   return, which no equivalent replaces without breaking the API, and that is the far end of the
   scale from one call that could have been written another way.
 - **One dev dependency**: this package. It brings the analyser, the formatter, the test runner,
-  the mutation engine and the coverage-floor binary with it, so a repository's `require-dev` does
-  not drift from its siblings'. The one tool it cannot bring is the security scanner — see
-  `scan` below.
+  the mutation engine, the dependency checker and the coverage-floor binary with it, so a
+  repository's `require-dev` does not drift from its siblings'. The one tool it cannot bring is
+  the security scanner — see `scan` below.
+
+  **The dependency checker is the one that pins PHP tighter than this estate does.**
+  `maglnet/composer-require-checker` requires `~8.4.0 || ~8.5.0`, where the other four are open to
+  the right — `^7.4|^8.0`, `^7.4 || ^8.0`, `>=8.4.1`, `^8.3`. So it decides when the matrix may
+  take a new PHP minor: until it cuts a release for one, `composer install` does not resolve on
+  that leg, and **no test fails** — the resolver simply refuses, which is the same shape the
+  TypeScript half records for its own matched pair. That is a fact to check rather than a memory
+  to keep:
+
+  ```bash
+  composer show maglnet/composer-require-checker --available          # newest is first in `versions`
+  composer show maglnet/composer-require-checker <newest> --available | grep '^php '
+  ```
+
+  It is carried anyway, because it is the only thing that sees an undeclared platform requirement.
+  CI installs the extensions unconditionally, so every verb passes on a package that forgot one,
+  and the failure waits for whoever installs it. Measured when it arrived: two undeclared in this
+  package and four in `rak200/utils`.
 
 ## The verbs, bound
 
