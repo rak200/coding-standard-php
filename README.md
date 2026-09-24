@@ -22,6 +22,9 @@ composer require --dev rak200/coding-standard-php
 It brings PHPStan, php-cs-fixer, PHPUnit, Infection and ComposerRequireChecker with it, so a
 repository's `require-dev` cannot drift from its siblings'.
 
+Extensions: `libxml` and `simplexml`, which the `coverage` verb uses to read the clover report.
+Both are bundled with PHP and enabled by default on most distributions.
+
 ## Use
 
 ```neon
