@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/rak200/coding-standard-php/compare/0.5.0...0.5.1) (2026-09-24)
+
+
+### Features
+
+* the package brings the dependency checker ([#76](https://github.com/rak200/coding-standard-php/issues/76)) ([4c1406b](https://github.com/rak200/coding-standard-php/commit/4c1406b5e0a66dca706d5b0fe90ce1e94595e1d4))
+
 ## [0.5.0](https://github.com/rak200/coding-standard-php/compare/0.4.0...0.5.0) (2026-09-23)
 
 
