@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/rak200/coding-standard-php/compare/0.5.1...0.5.2) (2026-09-24)
+
+
+### Bug Fixes
+
+* the clover parser declares the extensions it needs ([#78](https://github.com/rak200/coding-standard-php/issues/78)) ([bf6db24](https://github.com/rak200/coding-standard-php/commit/bf6db2437a5b856cbbfb4d2a7039f7daab177007))
+
 ## [0.5.1](https://github.com/rak200/coding-standard-php/compare/0.5.0...0.5.1) (2026-09-24)
 
 
