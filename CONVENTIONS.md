@@ -24,20 +24,33 @@ Import both from a project's `CLAUDE.md`:
   under `require` (`ext-mbstring` wherever `mb_*` is used, `ext-bcmath` for big-number work).
 
   **`genuinely` is the load-bearing word, and it cuts both ways.** An extension the shipped code
-  reaches must be declared, and the pipeline's *An extension in use is an extension declared* step
-  fails a `mb_*` call with no `ext-mbstring`. It is the only thing that can: CI installs `mbstring`
-  and `bcmath` on every run, so the suite, the analyser and the scanner all pass on a package that
-  forgot, and the failure waits for whoever installs it. Its reach is those two extensions, because
-  an extension is proven in use by its own surface and that surface differs per extension — a third
-  one is declared, or not, with nothing watching.
+  reaches must be declared. `ComposerRequireChecker` is what sees that — it resolves every symbol
+  against the installed graph and names the ones nothing declares, over every extension rather
+  than a table of known ones — and this package has carried it since 0.5.1, so it is on
+  `vendor/bin` in every repository that installs the standard.
 
-  The other direction is a judgement and **nothing checks it**. An extension reached in a single
-  place, where a native equivalent would do, is not genuinely needed: the equivalent is the answer
-  and the declaration is the mistake, because a platform requirement narrows who can install the
-  package for as long as it stands. The test is what the extension is load-bearing *for* —
-  `BcMath\Number` is the return type of `caster`'s `toNumber()` and a member of `cast()`'s union
-  return, which no equivalent replaces without breaking the API, and that is the far end of the
-  scale from one call that could have been written another way.
+  **Nothing runs it yet.** There is no pipeline step, so the rule is enforced by whoever types
+  `vendor/bin/composer-require-checker check composer.json` and by nobody else. And nothing that
+  executes could find these instead: CI installs the extensions unconditionally, so the suite, the
+  analyser and the scanner all pass on a package that forgot one, and the failure waits for
+  whoever installs it. Asked for the first time, it found two undeclared in this package and four
+  in `rak200/utils`; both are corrected, which is what makes the step cheap to add rather than a
+  migration.
+
+  The other direction is a judgement and **nothing checks it, nor could**. An extension reached in
+  a single place is not automatically needed, and the test is what it is load-bearing *for*. Three
+  measured points on that scale:
+
+  - `BcMath\Number` is the return type of `caster`'s `toNumber()` and a member of `cast()`'s union
+    return. No equivalent replaces it without breaking the API — **`require`**.
+  - `ctype_*`, `filter_var` and `finfo_*` in `rak200/utils` are unguarded, so calling them without
+    the extension is fatal — **`require`**.
+  - `iconv` in `rak200/utils` is reached twice, both behind `function_exists`, both documented as
+    returning the input unchanged without it. Requiring it would turn a graceful degradation into
+    a hard platform requirement — **`suggest`**, with the checker told about the one symbol.
+
+  The equivalent is the answer only where one exists; `iconv`'s `ASCII//TRANSLIT` has none, and it
+  still does not belong in `require`.
 - **One dev dependency**: this package. It brings the analyser, the formatter, the test runner,
   the mutation engine, the dependency checker and the coverage-floor binary with it, so a
   repository's `require-dev` does not drift from its siblings'. The one tool it cannot bring is
