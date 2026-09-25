@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.3](https://github.com/rak200/coding-standard-php/compare/0.5.2...0.5.3) (2026-09-25)
+
+
+### Bug Fixes
+
+* the extensions rule named a step that does not exist ([#82](https://github.com/rak200/coding-standard-php/issues/82)) ([e2b0a47](https://github.com/rak200/coding-standard-php/commit/e2b0a4778f685e1a404588ba4a286c0d0bbfa792))
+
 ## [0.5.2](https://github.com/rak200/coding-standard-php/compare/0.5.1...0.5.2) (2026-09-24)
 
 
