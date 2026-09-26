@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.5](https://github.com/rak200/coding-standard-php/compare/0.5.4...0.5.5) (2026-09-26)
+
+
+### Features
+
+* every test class names what it covers ([#89](https://github.com/rak200/coding-standard-php/issues/89)) ([a6c267b](https://github.com/rak200/coding-standard-php/commit/a6c267b34e2883cdbcb59df9a93223a9d9ffb202))
+
 ## [0.5.4](https://github.com/rak200/coding-standard-php/compare/0.5.3...0.5.4) (2026-09-26)
 
 
