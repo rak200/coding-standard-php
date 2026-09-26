@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rak200\CodingStandardPhp\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Rak200\CodingStandardPhp\CoverageFloor;
@@ -23,6 +24,7 @@ use function unlink;
 /**
  * @internal
  */
+#[CoversClass(CoverageFloor::class)]
 final class CoverageFloorTest extends TestCase
 {
     private string $directory;

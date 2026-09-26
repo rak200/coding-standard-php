@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rak200\CodingStandardPhp\Tests;
 
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Rak200\CodingStandardPhp\ScanCommand;
 
@@ -26,6 +27,7 @@ use function preg_match;
  *
  * @internal
  */
+#[CoversNothing]
 final class MandatedValuesTest extends TestCase
 {
     private const string CONVENTIONS = __DIR__ . '/../CONVENTIONS.md';

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Rak200\CodingStandardPhp\Tests;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Rak200\CodingStandardPhp\ScanCommand;
 
 /**
  * @internal
  */
+#[CoversClass(ScanCommand::class)]
 final class ScanCommandTest extends TestCase
 {
     public function testArgumentsAreTheCommandTheRfcDecided(): void
