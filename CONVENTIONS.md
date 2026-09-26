@@ -29,13 +29,14 @@ Import both from a project's `CLAUDE.md`:
   than a table of known ones — and this package has carried it since 0.5.1, so it is on
   `vendor/bin` in every repository that installs the standard.
 
-  **Nothing runs it yet.** There is no pipeline step, so the rule is enforced by whoever types
-  `vendor/bin/composer-require-checker check composer.json` and by nobody else. And nothing that
-  executes could find these instead: CI installs the extensions unconditionally, so the suite, the
-  analyser and the scanner all pass on a package that forgot one, and the failure waits for
-  whoever installs it. Asked for the first time, it found two undeclared in this package and four
-  in `rak200/utils`; both are corrected, which is what makes the step cheap to add rather than a
-  migration.
+  **The pipeline runs it**, as *Every symbol used is a symbol declared*, on the floor leg of every
+  repository calling `php.yml` 2.12.0 or later — this one included. It **fails** rather than skips
+  when the binary is absent: a standard older than 0.5.1 does not carry the checker, and a step
+  that cannot grade must say so instead of passing. A deliberate exception is a
+  `composer-require-checker.json` beside `composer.json`, which the checker reads without a flag.
+  Nothing that executes could find these instead: CI installs the extensions unconditionally, so
+  the suite, the analyser and the scanner all pass on a package that forgot one, and the failure
+  waits for whoever installs it.
 
   The other direction is a judgement and **nothing checks it, nor could**. An extension reached in
   a single place is not automatically needed, and the test is what it is load-bearing *for*. Three
