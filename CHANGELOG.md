@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.8](https://github.com/rak200/coding-standard-php/compare/0.5.7...0.5.8) (2026-09-26)
+
+
+### Bug Fixes
+
+* the test naming rules say what grades them ([#96](https://github.com/rak200/coding-standard-php/issues/96)) ([09913b5](https://github.com/rak200/coding-standard-php/commit/09913b5959617ca7f6a97759633c5d86d713cee2))
+
 ## [0.5.7](https://github.com/rak200/coding-standard-php/compare/0.5.6...0.5.7) (2026-09-26)
 
 
