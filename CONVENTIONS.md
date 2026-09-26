@@ -324,9 +324,19 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
   The attributes are written by hand. `php_unit_attributes` stays off in the formatter config,
   because it converts a leftover `@coversNothing` into a live `#[CoversNothing]` and takes a
   repository's coverage to zero through `composer fix`.
-- The test namespace mirrors the source namespace: `Rak200\Foo\Bar` →
-  `Rak200\Foo\Tests\BarTest`.
+- The test namespace mirrors the source namespace, with `Tests` directly after the package's
+  root: `Rak200\Utils\Exception\IOException` → `Rak200\Utils\Tests\Exception\IOExceptionTest`.
+
+  **Nothing checks it, and that is deliberate.** PHPUnit collects a test by its file, and the
+  namespace plays no part in whether it runs: a test under the wrong one runs exactly as it would
+  under the right one, and `tests/` is export-ignored, so no consumer ever meets it. The check
+  that exists, `composer dump-autoload --optimize --strict-psr --dry-run`, grades more than this
+  rule — it also refuses a class declared in a file named for anything else — and a PHPStan
+  assertion file does that on purpose, declaring the fixture its assertions use beside them.
+  Splitting one to satisfy a check would be restructuring code for a tool.
 - Test methods use PSR-12 camelCase — `testReturnsBlankForWhitespaceOnly`, never snake_case.
+  `php_unit_method_casing`, which the preset carries through `@Symfony`, renames a snake_case
+  test method, so `composer lint` reds on one and `composer fix` corrects it.
 - **Infection** guards test quality: config committed as `infection.json5.dist`, coverage from
   Xdebug locally and pcov in CI. A surviving mutant is *ignored* only when provably equivalent,
   via an in-code `@infection-ignore-all` anchored on the **smallest node that isolates just the
