@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.7](https://github.com/rak200/coding-standard-php/compare/0.5.6...0.5.7) (2026-09-26)
+
+
+### Bug Fixes
+
+* the author rule names its scope ([#94](https://github.com/rak200/coding-standard-php/issues/94)) ([af87dd8](https://github.com/rak200/coding-standard-php/commit/af87dd81af89658414ac0c244795ff882b95acb7))
+
 ## [0.5.6](https://github.com/rak200/coding-standard-php/compare/0.5.5...0.5.6) (2026-09-26)
 
 
