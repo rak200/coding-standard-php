@@ -303,9 +303,12 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
   risky, and `failOnRisky` turns that red. Coverage then counts only against declared targets,
   which is the point: a test stops taking credit for code it merely passes through.
 
-  **Nothing in the pipeline asserts that a repository sets `requireCoverageMetadata`.** Until
-  something does, the rule binds a repository that has opted in and nobody else — and a
-  repository that has not opted in gets no warning that a class names nothing.
+  **The pipeline asserts the setting**, as *Every test names what it covers*, on the floor leg of
+  every repository calling `php.yml` 2.13.0 or later. It reads `phpunit.xml`,
+  or `phpunit.xml.dist` where that is the file PHPUnit would load, and fails when the attribute is
+  absent or false, since PHPUnit's own default is false. What it asserts is the setting, not the
+  attributes: which class a test names is the test's author's to get right, and PHPUnit reports a
+  target that is not a class — an interface, for one — as a warning that `failOnWarning` turns red.
 
   The attributes are written by hand. `php_unit_attributes` stays off in the formatter config,
   because it converts a leftover `@coversNothing` into a live `#[CoversNothing]` and takes a
