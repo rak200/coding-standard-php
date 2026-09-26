@@ -204,10 +204,9 @@ two rules above, and `php_unit_test_class_requires_covers`.
 
 That last one is off because the preset writes `@coversNothing` into a test class that declares
 no coverage target, and **PHPUnit stopped reading docblock metadata in 12** — so under the runner
-this standard pins it is an annotation nothing reads. What *does* declare a target is
-`#[CoversClass]`, which PHPUnit 13 reads and which this standard does not yet require of anyone:
-nothing here asserts that a test class names what it covers, and until that is decided a test
-class that names nothing is caught by no mechanism at all.
+this standard pins it is an annotation nothing reads. What declares a target is
+`#[CoversClass]`, which PHPUnit 13 reads — §Testing form requires it, and says how far that
+requirement reaches.
 
 Run the fixer on the language floor (8.4) to match it. A newer runtime needs
 `PHP_CS_FIXER_IGNORE_ENV=1` and prints a harmless version warning.
@@ -298,6 +297,19 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
 `minCoveredMsi: 100` floor. In PHP:
 
 - **PHPUnit**, with `failOnWarning` and `failOnRisky` enabled.
+- **Every test class names what it covers** — `#[CoversClass(TheClass::class)]`, or
+  `#[CoversNothing]` where the test genuinely covers no class, with the reason beside it. With
+  `requireCoverageMetadata="true"` in the repository's `phpunit.xml`, a class that names neither is
+  risky, and `failOnRisky` turns that red. Coverage then counts only against declared targets,
+  which is the point: a test stops taking credit for code it merely passes through.
+
+  **Nothing in the pipeline asserts that a repository sets `requireCoverageMetadata`.** Until
+  something does, the rule binds a repository that has opted in and nobody else — and a
+  repository that has not opted in gets no warning that a class names nothing.
+
+  The attributes are written by hand. `php_unit_attributes` stays off in the formatter config,
+  because it converts a leftover `@coversNothing` into a live `#[CoversNothing]` and takes a
+  repository's coverage to zero through `composer fix`.
 - The test namespace mirrors the source namespace: `Rak200\Foo\Bar` →
   `Rak200\Foo\Tests\BarTest`.
 - Test methods use PSR-12 camelCase — `testReturnsBlankForWhitespaceOnly`, never snake_case.
