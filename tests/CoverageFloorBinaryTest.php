@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Rak200\CodingStandardPhp\Tests;
 
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 
 use function escapeshellarg;
@@ -24,6 +25,7 @@ use function unlink;
  *
  * @internal
  */
+#[CoversNothing]
 final class CoverageFloorBinaryTest extends TestCase
 {
     private const string BINARY = __DIR__ . '/../bin/coverage-floor';
