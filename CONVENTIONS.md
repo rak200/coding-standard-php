@@ -276,9 +276,20 @@ handle large or unbounded data.
 
 Layer 1 mandates that documentation exists; this is what it looks like in PHP.
 
-- Every class carries a PHPDoc summary (one short paragraph) plus
-  `@author rak200 <rak.ricardo@windowslive.com>`. The same attribution string is used wherever an
-  author appears, `composer.json` included.
+- Every class, interface, trait and enum under `src/` carries a PHPDoc summary (one short
+  paragraph) plus `@author rak200 <rak.ricardo@windowslive.com>`. The same attribution string is
+  used wherever an author appears, `composer.json` included.
+
+  **`src/` is the scope, because that is the code that travels.** The tag's one job is
+  attribution once a file leaves its repository; inside it, git and the manifest's `authors`
+  already record who wrote what. Test classes and the fixtures declared beside them stay out —
+  they are not documentation, and read literally, *every class* would ask for the tag on a
+  three-line fixture enum.
+
+  **Nothing checks it, and that is deliberate.** A missing or mistyped tag breaks nothing and hides
+  nothing, and the history agrees the rule has not needed guarding: no commit in any repository
+  that follows it has ever had to correct one. A gate worth trusting here would have to read PHP
+  rather than grep it, and that is a real cost for a defect that has not occurred.
 - Every `public` method carries a PHPDoc stating what it does. `@param` / `@return` / `@throws`
   are added **only when they convey something beyond the type signature** — units, semantics,
   edge-case behaviour, the condition of a throw.
