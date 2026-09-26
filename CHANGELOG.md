@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.4](https://github.com/rak200/coding-standard-php/compare/0.5.3...0.5.4) (2026-09-26)
+
+
+### Bug Fixes
+
+* the extensions rule says nothing runs what does ([#86](https://github.com/rak200/coding-standard-php/issues/86)) ([4df6ae5](https://github.com/rak200/coding-standard-php/commit/4df6ae5ac9f2b5505b509e4b0ee7812ffb38cccc))
+
 ## [0.5.3](https://github.com/rak200/coding-standard-php/compare/0.5.2...0.5.3) (2026-09-25)
 
 
