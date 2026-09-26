@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.6](https://github.com/rak200/coding-standard-php/compare/0.5.5...0.5.6) (2026-09-26)
+
+
+### Bug Fixes
+
+* the testing form says nothing asserts what does ([#92](https://github.com/rak200/coding-standard-php/issues/92)) ([5bb7799](https://github.com/rak200/coding-standard-php/commit/5bb77994b9ad77df6f4bf457cb0dc6f5ef1ae3a1))
+
 ## [0.5.5](https://github.com/rak200/coding-standard-php/compare/0.5.4...0.5.5) (2026-09-26)
 
 
