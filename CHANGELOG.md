@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.0](https://github.com/rak200/coding-standard-php/compare/0.5.8...0.6.0) (2026-09-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* the analyser enforces first-class callable syntax ([#98](https://github.com/rak200/coding-standard-php/issues/98))
+
+### Features
+
+* the analyser enforces first-class callable syntax ([#98](https://github.com/rak200/coding-standard-php/issues/98)) ([11d1746](https://github.com/rak200/coding-standard-php/commit/11d1746ed7dc6bd4e795d31a4d5b7e3983dc34d0))
+
 ## [0.5.8](https://github.com/rak200/coding-standard-php/compare/0.5.7...0.5.8) (2026-09-26)
 
 
