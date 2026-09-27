@@ -38,6 +38,11 @@ Import both from a project's `CLAUDE.md`:
   the suite, the analyser and the scanner all pass on a package that forgot one, and the failure
   waits for whoever installs it.
 
+  **This package carries such a file**, and not for an extension. The analyser rule it ships names
+  PHPStan's and php-parser's classes, which live inside `phpstan.phar`, where the checker cannot
+  look; they are listed by name, so a rule that imports a new one reds the checker until the list
+  follows.
+
   The other direction is a judgement and **nothing checks it, nor could**. An extension reached in
   a single place is not automatically needed, and the test is what it is load-bearing *for*. Three
   measured points on that scale:
@@ -246,10 +251,20 @@ Keep the native only when:
   auditable inventory of the natives deliberately kept under the rule above. Functions only;
   constants stay unqualified.
 - **Pass callables with first-class syntax, never as strings** — `func(...)`,
-  `self::method(...)`, not `'func'` or `['Class', 'method']`. It keeps the reference statically
-  checked, IDE-navigable, and bound by `use function`. It does not apply to APIs that take a
-  function *name as data* (`function_exists`, `is_callable`), or when the symbol is computed at
-  runtime.
+  `self::method(...)`, not `'func'` or `['Class', 'method']`. It keeps the reference checked
+  while it is being written, IDE-navigable, and bound by `use function`: the editor marks
+  `trimm(...)` as it is typed, where `'trimm'` is text that looks exactly as right until the
+  analyser runs. It does not apply to APIs that take a function *name as data*
+  (`function_exists`, `is_callable`), or when the symbol is computed at runtime.
+
+  **The analyser enforces it**, as `rak200.firstClassCallable` — a rule this package ships and
+  `phpstan.neon.dist` registers, so every repository that includes the standard from 0.6.0 runs
+  it with nothing to add. It reads types, which is what makes the exceptions above cost nothing:
+  it reports only where the parameter wants a callable and nothing else — `function_exists()`
+  takes a string, `is_callable()` takes anything, and a `callable-string` parameter asks for the
+  name — and only a callable written as a literal, so a name computed at run time passes. Where
+  a string is genuinely what the callee needs, the suppression names that identifier, in the one
+  form §Static analysis gives.
 
 ## Member order
 

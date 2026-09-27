@@ -1,0 +1,21 @@
+{
+    "symbol-whitelist": [
+        "PHPStan\\Analyser\\ArgumentsNormalizer",
+        "PHPStan\\Analyser\\Scope",
+        "PHPStan\\Reflection\\ParametersAcceptorSelector",
+        "PHPStan\\Reflection\\ReflectionProvider",
+        "PHPStan\\Rules\\Rule",
+        "PHPStan\\Rules\\RuleErrorBuilder",
+        "PHPStan\\Type\\Type",
+        "PHPStan\\Type\\TypeCombinator",
+        "PHPStan\\Type\\VerbosityLevel",
+        "PhpParser\\Node",
+        "PhpParser\\Node\\Expr\\CallLike",
+        "PhpParser\\Node\\Expr\\FuncCall",
+        "PhpParser\\Node\\Expr\\MethodCall",
+        "PhpParser\\Node\\Expr\\New_",
+        "PhpParser\\Node\\Expr\\StaticCall",
+        "PhpParser\\Node\\Identifier",
+        "PhpParser\\Node\\Name"
+    ]
+}

@@ -38,3 +38,13 @@ parameters:
     treatPhpDocTypesAsCertain: false
     reportUnmatchedIgnoredErrors: true
     reportIgnoresWithoutComments: true
+
+# One rule of this package's own, because the preference it enforces has no upstream
+# rule to switch on: a callable is passed with first-class syntax, `trim(...)`, never
+# as `'trim'` or `[$object, 'method']`. The editor marks `trimm(...)` as it is typed;
+# `'trimm'` is text until the analyser runs. It reads types, so a name handed to
+# `function_exists()` or `is_callable()`, or computed at run time, is not reported.
+# Where a string is genuinely what the callee needs:
+# `// @phpstan-ignore rak200.firstClassCallable (the reason)`.
+rules:
+    - Rak200\CodingStandardPhp\PHPStan\FirstClassCallableRule
