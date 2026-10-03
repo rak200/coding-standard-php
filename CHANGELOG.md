@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0](https://github.com/rak200/coding-standard-php/compare/0.7.0...0.8.0) (2026-10-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* the doc-summary rule reads every public member ([#104](https://github.com/rak200/coding-standard-php/issues/104))
+
+### Features
+
+* the doc-summary rule reads every public member ([#104](https://github.com/rak200/coding-standard-php/issues/104)) ([2c09f40](https://github.com/rak200/coding-standard-php/commit/2c09f40c0f6f1c6cd05f86c4c36e5212e5379433))
+
 ## [0.7.0](https://github.com/rak200/coding-standard-php/compare/0.6.0...0.7.0) (2026-10-03)
 
 
