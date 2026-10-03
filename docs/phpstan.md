@@ -97,8 +97,8 @@ callables*.
 
 ### `rak200.docSummary`
 
-Every class, interface, trait and enum, and every public method, carries a PHPDoc summary, in the
-directories `rak200.documented` names.
+Every class, interface, trait and enum, and every public member of one — a method, a property, a
+constant, an enum case — carries a PHPDoc summary, in the directories `rak200.documented` names.
 
 ```php
 final class Bare {}                                   // Bare has no PHPDoc summary.
@@ -109,6 +109,13 @@ final class Tagged {}                                 // reported: the first tex
 /** Converts one value at a time. */
 final class Converter
 {
+    public const int LIMIT = 3;                       // Converter::LIMIT has no PHPDoc summary.
+
+    /** Takes the size. */
+    public function __construct(
+        public readonly int $size,                    // Converter::$size has no PHPDoc summary.
+    ) {}
+
     /** @return list<string> */
     public function names(): array { return []; }     // Converter::names() has no PHPDoc summary.
 
@@ -118,8 +125,9 @@ final class Converter
 
 The summary is the doc comment's first text, so a doc comment that opens with a tag has none, and
 `{@see Other}` counts as text. The rule asks that a summary is there; whether it says the right
-thing is for a reader. An anonymous class has no name to document and is passed over. A trait is
-read where it is declared.
+thing is for a reader. A promoted property is a property like any other: its doc comment sits on
+the parameter that declares it. An anonymous class has no name to document and is passed over. A
+trait is read where it is declared.
 
 `rak200.documented` is `[%currentWorkingDirectory%/src]`: a doc comment on public code is the
 documentation that travels with the package, and a test never leaves its repository. A repository
