@@ -61,10 +61,10 @@ parametersSchema:
 rules:
     - Rak200\CodingStandardPhp\PHPStan\FirstClassCallableRule
 
-# Every class, interface, trait and enum, and every public method, under
-# `rak200.documented` carries a PHPDoc summary: the documentation a package carries
-# inside itself, and what a consumer's editor shows over a call. A doc comment that is
-# only tags has no summary.
+# Every class, interface, trait and enum, and every public member of one — method,
+# property, constant, enum case — under `rak200.documented` carries a PHPDoc summary:
+# the documentation a package carries inside itself, and what a consumer's editor shows
+# over a call. A doc comment that is only tags has no summary.
 #
 # Where a rule is genuinely wrong for one line, the suppression names its identifier:
 # `// @phpstan-ignore rak200.firstClassCallable (the reason)`, or `rak200.docSummary`.

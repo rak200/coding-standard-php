@@ -211,7 +211,7 @@ final class DocSummaryRuleTest extends RuleTestCase
             ],
         ];
 
-        yield 'an enum and its method' => [
+        yield 'an enum, its case and its method' => [
             <<<'PHP'
                 enum Status: string
                 {
@@ -225,7 +225,65 @@ final class DocSummaryRuleTest extends RuleTestCase
                 PHP,
             [
                 ['Fixture\Status has no PHPDoc summary.', 1],
+                ['Fixture\Status::On has no PHPDoc summary.', 3],
                 ['Fixture\Status::label() has no PHPDoc summary.', 5],
+            ],
+        ];
+
+        yield 'a public property' => [
+            <<<'PHP'
+                /** Documented. */
+                final class Host
+                {
+                    public string $name = '';
+                }
+                PHP,
+            [['Fixture\Host::$name has no PHPDoc summary.', 4]],
+        ];
+
+        yield 'a promoted property, on its own line' => [
+            <<<'PHP'
+                /** Documented. */
+                final class Host
+                {
+                    /** Takes the name. */
+                    public function __construct(
+                        public readonly string $name,
+                        private readonly int $hidden,
+                    ) {}
+                }
+                PHP,
+            [['Fixture\Host::$name has no PHPDoc summary.', 6]],
+        ];
+
+        yield 'a property promoted by a constructor that is not public' => [
+            <<<'PHP'
+                /** Documented. */
+                final class Host
+                {
+                    private function __construct(public readonly int $count) {}
+                }
+                PHP,
+            [['Fixture\Host::$count has no PHPDoc summary.', 4]],
+        ];
+
+        yield 'a constant public by default, and an interface constant' => [
+            <<<'PHP'
+                /** Documented. */
+                final class Host
+                {
+                    const LIMIT = 3;
+                }
+
+                interface Contract
+                {
+                    public const string NAME = 'contract';
+                }
+                PHP,
+            [
+                ['Fixture\Host::LIMIT has no PHPDoc summary.', 4],
+                ['Fixture\Contract has no PHPDoc summary.', 7],
+                ['Fixture\Contract::NAME has no PHPDoc summary.', 9],
             ],
         ];
     }
@@ -271,14 +329,48 @@ final class DocSummaryRuleTest extends RuleTestCase
                 PHP,
         ];
 
-        yield 'methods that are not public' => [
+        yield 'members that are not public' => [
             <<<'PHP'
                 /** Documented. */
                 class Hidden
                 {
+                    private const int LIMIT = 3;
+
+                    protected string $name = '';
+
+                    /** Takes what it needs. */
+                    public function __construct(private readonly int $count, int $plain = 0) {}
+
                     protected function hook(): void {}
 
                     private function helper(): void {}
+                }
+                PHP,
+        ];
+
+        yield 'public members with a summary each' => [
+            <<<'PHP'
+                /** Documented. */
+                final class Host
+                {
+                    /** The most it takes. */
+                    public const int LIMIT = 3;
+
+                    /** What it is called. */
+                    public string $name = '';
+
+                    /** Takes the size. */
+                    public function __construct(
+                        /** How many it holds. */
+                        public readonly int $size,
+                    ) {}
+                }
+
+                /** On or off. */
+                enum Status: string
+                {
+                    /** Running. */
+                    case On = 'on';
                 }
                 PHP,
         ];

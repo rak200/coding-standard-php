@@ -301,8 +301,8 @@ Layer 1 mandates that documentation exists; this is what it looks like in PHP.
   they are not documentation, and read literally, *every class* would ask for the tag on a
   three-line fixture enum.
 
-  **The analyser checks the summary**, as `rak200.docSummary`, here and for the public methods
-  below: a declaration or a public method whose doc comment is missing, empty, or opens with a
+  **The analyser checks the summary**, as `rak200.docSummary`, here and for the public members
+  below: a declaration or a public member whose doc comment is missing, empty, or opens with a
   tag is reported. It reads the directories in `rak200.documented` — `src/` unless a repository
   replaces the list — because a doc comment on public code is the documentation that travels
   with it: what a consumer's editor shows over a call. It can ask that a summary is there, never
@@ -311,10 +311,11 @@ Layer 1 mandates that documentation exists; this is what it looks like in PHP.
   **The tag is checked by nothing, and that is deliberate.** A missing or mistyped tag breaks
   nothing and hides nothing, and the history agrees the rule has not needed guarding: no commit
   in any repository that follows it has ever had to correct one.
-- Every `public` method carries a PHPDoc stating what it does: its summary, which the analyser
-  checks with the declaration's above. `@param` / `@return` / `@throws` are added **only when
-  they convey something beyond the type signature** — units, semantics, edge-case behaviour, the
-  condition of a throw.
+- Every public member — a method, a property, a constant, an enum case — carries a PHPDoc stating
+  what it does: its summary, which the analyser checks with the declaration's above. A promoted
+  property is a property like any other, and its doc comment sits on the parameter that declares
+  it. `@param` / `@return` / `@throws` are added **only when they convey something beyond the type
+  signature** — units, semantics, edge-case behaviour, the condition of a throw.
 - Private helpers are documented only when the implementation is non-obvious.
 
 **Reference pages** live in `docs/`, sized by unit: an index (`docs/README.md`) with a
