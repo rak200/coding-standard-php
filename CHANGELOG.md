@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://github.com/rak200/coding-standard-php/compare/0.6.0...0.7.0) (2026-10-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* the analyser requires a PHPDoc summary on what src/ exposes ([#102](https://github.com/rak200/coding-standard-php/issues/102))
+
+### Features
+
+* the analyser requires a PHPDoc summary on what src/ exposes ([#102](https://github.com/rak200/coding-standard-php/issues/102)) ([bfef22e](https://github.com/rak200/coding-standard-php/commit/bfef22e39808b174f4d8bd46f415d0e11f2ad03f))
+
 ## [0.6.0](https://github.com/rak200/coding-standard-php/compare/0.5.8...0.6.0) (2026-09-27)
 
 
