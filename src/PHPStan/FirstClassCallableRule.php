@@ -52,13 +52,16 @@ final class FirstClassCallableRule implements Rule
     /** The identifier its reports carry, which is the name a suppression gives. */
     public const string IDENTIFIER = 'rak200.firstClassCallable';
 
+    /** Built by the analyser, which hands it the reflection it resolves functions with. */
     public function __construct(private readonly ReflectionProvider $reflectionProvider) {}
 
+    /** Every kind of call it reads: a function, a method, a static method and `new`. */
     public function getNodeType(): string
     {
         return CallLike::class;
     }
 
+    /** One report for each argument that passes a callable as a string or an array. */
     public function processNode(Node $node, Scope $scope): array
     {
         $variants = $this->variants($node, $scope);
