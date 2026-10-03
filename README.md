@@ -65,7 +65,7 @@ repository tried the snippets above.
 
 | Config | The decision it carries |
 | --- | --- |
-| `phpstan.neon.dist` | `level: max`, over `src/` **and** `tests/`, plus one rule of its own: a callable is passed with first-class syntax |
+| `phpstan.neon.dist` | `level: max`, over `src/` **and** `tests/`, plus two rules of its own: a callable is passed with first-class syntax, and what `src/` exposes carries a PHPDoc summary |
 | `.php-cs-fixer.dist.php` | `@PhpCsFixer` — the strictest consolidated preset — with seven stated overrides |
 | `infection.json5.dist` | `minCoveredMsi: 100`; a survivor is killed, never accommodated |
 | `bin/coverage-floor` | the `coverage` verb: a clover report against the repo's `.coverage-floor` |

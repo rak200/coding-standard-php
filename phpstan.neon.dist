@@ -39,12 +39,39 @@ parameters:
     reportUnmatchedIgnoredErrors: true
     reportIgnoresWithoutComments: true
 
-# One rule of this package's own, because the preference it enforces has no upstream
-# rule to switch on: a callable is passed with first-class syntax, `trim(...)`, never
-# as `'trim'` or `[$object, 'method']`. The editor marks `trimm(...)` as it is typed;
-# `'trimm'` is text until the analyser runs. It reads types, so a name handed to
-# `function_exists()` or `is_callable()`, or computed at run time, is not reported.
-# Where a string is genuinely what the callee needs:
-# `// @phpstan-ignore rak200.firstClassCallable (the reason)`.
+    # Where the code that travels lives: the directories whose classes and public
+    # methods must carry a PHPDoc summary. Absolute, so a repository whose code is not
+    # in src/ replaces the list — `documented!:` — rather than adding to it.
+    rak200:
+        documented:
+            - %currentWorkingDirectory%/src
+
+parametersSchema:
+    rak200: structure([
+        documented: listOf(string())
+    ])
+
+# Two rules of this package's own, because the conventions they enforce have no
+# upstream rule to switch on.
+#
+# A callable is passed with first-class syntax, `trim(...)`, never as `'trim'` or
+# `[$object, 'method']`. The editor marks `trimm(...)` as it is typed; `'trimm'` is
+# text until the analyser runs. It reads types, so a name handed to `function_exists()`
+# or `is_callable()`, or computed at run time, is not reported.
 rules:
     - Rak200\CodingStandardPhp\PHPStan\FirstClassCallableRule
+
+# Every class, interface, trait and enum, and every public method, under
+# `rak200.documented` carries a PHPDoc summary: the documentation a package carries
+# inside itself, and what a consumer's editor shows over a call. A doc comment that is
+# only tags has no summary.
+#
+# Where a rule is genuinely wrong for one line, the suppression names its identifier:
+# `// @phpstan-ignore rak200.firstClassCallable (the reason)`, or `rak200.docSummary`.
+services:
+    -
+        class: Rak200\CodingStandardPhp\PHPStan\DocSummaryRule
+        arguments:
+            documented: %rak200.documented%
+        tags:
+            - phpstan.rules.rule
