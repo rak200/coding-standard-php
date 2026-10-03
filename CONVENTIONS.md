@@ -38,7 +38,7 @@ Import both from a project's `CLAUDE.md`:
   the suite, the analyser and the scanner all pass on a package that forgot one, and the failure
   waits for whoever installs it.
 
-  **This package carries such a file**, and not for an extension. The analyser rule it ships names
+  **This package carries such a file**, and not for an extension. The analyser rules it ships name
   PHPStan's and php-parser's classes, which live inside `phpstan.phar`, where the checker cannot
   look; they are listed by name, so a rule that imports a new one reds the checker until the list
   follows.
@@ -301,13 +301,20 @@ Layer 1 mandates that documentation exists; this is what it looks like in PHP.
   they are not documentation, and read literally, *every class* would ask for the tag on a
   three-line fixture enum.
 
-  **Nothing checks it, and that is deliberate.** A missing or mistyped tag breaks nothing and hides
-  nothing, and the history agrees the rule has not needed guarding: no commit in any repository
-  that follows it has ever had to correct one. A gate worth trusting here would have to read PHP
-  rather than grep it, and that is a real cost for a defect that has not occurred.
-- Every `public` method carries a PHPDoc stating what it does. `@param` / `@return` / `@throws`
-  are added **only when they convey something beyond the type signature** — units, semantics,
-  edge-case behaviour, the condition of a throw.
+  **The analyser checks the summary**, as `rak200.docSummary`, here and for the public methods
+  below: a declaration or a public method whose doc comment is missing, empty, or opens with a
+  tag is reported. It reads the directories in `rak200.documented` — `src/` unless a repository
+  replaces the list — because a doc comment on public code is the documentation that travels
+  with it: what a consumer's editor shows over a call. It can ask that a summary is there, never
+  that it says the right thing.
+
+  **The tag is checked by nothing, and that is deliberate.** A missing or mistyped tag breaks
+  nothing and hides nothing, and the history agrees the rule has not needed guarding: no commit
+  in any repository that follows it has ever had to correct one.
+- Every `public` method carries a PHPDoc stating what it does: its summary, which the analyser
+  checks with the declaration's above. `@param` / `@return` / `@throws` are added **only when
+  they convey something beyond the type signature** — units, semantics, edge-case behaviour, the
+  condition of a throw.
 - Private helpers are documented only when the implementation is non-obvious.
 
 **Reference pages** live in `docs/`, sized by unit: an index (`docs/README.md`) with a

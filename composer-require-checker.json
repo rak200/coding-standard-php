@@ -2,6 +2,7 @@
     "symbol-whitelist": [
         "PHPStan\\Analyser\\ArgumentsNormalizer",
         "PHPStan\\Analyser\\Scope",
+        "PHPStan\\File\\FileHelper",
         "PHPStan\\Reflection\\ParametersAcceptorSelector",
         "PHPStan\\Reflection\\ReflectionProvider",
         "PHPStan\\Rules\\Rule",
@@ -16,6 +17,7 @@
         "PhpParser\\Node\\Expr\\New_",
         "PhpParser\\Node\\Expr\\StaticCall",
         "PhpParser\\Node\\Identifier",
-        "PhpParser\\Node\\Name"
+        "PhpParser\\Node\\Name",
+        "PhpParser\\Node\\Stmt\\ClassLike"
     ]
 }
