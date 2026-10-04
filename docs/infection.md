@@ -27,9 +27,11 @@ inheritance, so each repository carries its own file.
 A survivor is killed by strengthening the test, or proven equivalent and annotated at the narrowest
 node that isolates it.
 
-**Nothing enforces the number.** Infection obeys whatever it finds, and because the file is copied
-rather than inherited, a repository that lowers it is green at the lower value. The coverage floor's
-binary hard-floors at 95 and throws below it; the mutation floor has no equivalent.
+**The pipeline enforces the number.** Infection obeys whatever it finds, and because the file is
+copied rather than inherited, a repository that drops `minCoveredMsi` runs with no floor at all —
+measured on rak200/utils, a run at 5% covered MSI exited 0. From `php.yml` 2.17.0 the step _A
+repository may not weaken a mandated value_ reads the value with `json5_decode`, the parser
+Infection uses, and fails when it is absent or differs from this file's.
 
 [↑ Back to top](#infectionjson5dist)
 

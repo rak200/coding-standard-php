@@ -138,6 +138,14 @@ word, the pipeline owns when and over what it runs.
 **PHPStan at `level: max`**, over `src/` *and* `tests/`. The committed config is
 `phpstan.neon.dist`; a local `phpstan.neon` may override it and stays untracked.
 
+**The pipeline compares what PHPStan resolves**, not what a file spells: `phpstan dump-parameters`
+resolves the repository's `phpstan.neon.dist` and this package's, and every parameter this
+package's config sets must resolve to the same value. `rak200` is required rather than compared —
+it exists only when this config is included, which is what registers the rules it ships — and
+`rak200.documented` must name a directory but is the repository's to replace. A config that
+leaves this one out with `level: max` written by hand used to read as agreeing. From `php.yml`
+2.18.0, on the floor leg.
+
 When an error is caused by a **deficient native stub** — a functionMap entry that erases the
 value type (`preg_grep`, `sscanf`, …; confirmable inside the phpstan phar) — a localized inline
 `/** @var */` documenting the genuinely-known-true type is the **preferred** fix. Never
@@ -366,6 +374,11 @@ Layer 1 sets the policy — mirrored trees, one file per unit, contract assertio
   equivalent construct** — so the condition mutators on the same line stay live. The annotation
   has no per-mutator scope; the config-side `ignoreSourceCodeByRegex` is avoided because a
   full-line regex rots into dead config on any edit to that line.
+
+  Infection has no `includes`, so a repository's file is the whole config and `minCoveredMsi`
+  must be written in it: absent, Infection runs with no floor at all. From `php.yml` 2.17.0 the
+  pipeline reads the value with `json5_decode`, the parser Infection uses, and fails when it is
+  absent or differs from this package's.
 
 ## IDE
 
