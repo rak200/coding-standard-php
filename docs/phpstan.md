@@ -48,7 +48,10 @@ shape.
 PHPStan reads the reason in exactly one form: `@phpstan-ignore <id> (reason)`, one line, once per
 identifier.
 
-A local `phpstan.neon` may override any of it and stays untracked.
+A local `phpstan.neon` may override any of it and stays untracked. The committed config may not:
+from `php.yml` 2.18.0 the pipeline resolves `phpstan.neon.dist` through `phpstan dump-parameters`
+and fails when a parameter above resolves to anything else — except `rak200.documented`, which
+must name a directory and is otherwise the repository's.
 
 [↑ Back to top](#phpstanneondist)
 
